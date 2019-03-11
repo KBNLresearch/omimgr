@@ -147,7 +147,7 @@ class Disc:
             args = ['readom']
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
-            args.append('f=' + self.prefix + '.' + self.suffix)
+            args.append('f=' + self.prefix + '.' + self.extension)
 
         readStatus, readOut, readErr = shared.launchSubProcess(args)
 
