@@ -9,6 +9,8 @@ import json
 import time
 import logging
 import glob
+import pathlib
+from shutil import which
 from . import config
 from . import shared
 
@@ -30,10 +32,11 @@ class Disc:
         # Input validation flags
         self.dirOutIsDirectory = False
         self.outputExistsFlag = False
-        self.deviceAccessibleFlag = False
+        self.deviceExistsFlag = False
         self.dirOutIsWritable = False
-        self.blockSizeIsValid = False
-        self.filesIsValid = False
+        # Flags that define if dependencies are installed
+        self.ddrescueInstalled = False
+        self.readomInstalled = False
         # Config file location, depends on package directory
         packageDir = os.path.dirname(os.path.abspath(__file__))
         homeDir = os.path.normpath(os.path.expanduser("~"))
@@ -47,16 +50,10 @@ class Disc:
         self.logFileName = ''
         self.checksumFileName = ''
         self.metadataFileName = ''
-        self.initBlockSizeDefault = ''
         self.finishedFlag = False
         self.omDeviceIOError = False
         self.successFlag = True
         self.configSuccess = True
-        self.endOfTape = False
-        self.extractFile = False
-        self.file = 1
-        self.filesList = []
-        self.blockSize = 0
         self.timeZone = ''
         self.defaultDir = ''
 
@@ -102,15 +99,16 @@ class Disc:
         # Check if dirOut is writable
         self.dirOutIsWritable = os.access(self.dirOut, os.W_OK | os.X_OK)
 
-        # Check if tape device is accessible
-        args = ['mt']
-        args.append('-f')
-        args.append(self.omDevice)
-        args.append('status')
-        mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
+        # Check if readom and ddrescue are installed
 
-        if mtStatus == 0:
-            self.deviceAccessibleFlag = True
+        if which("readom") is not None:
+            self.readomInstalled = True
+        if which("ddrescue") is not None:
+            self.ddrescueInstalled = True
+
+        # Check if selected block device exists
+        p = pathlib.Path(self.omDevice)
+        self.deviceExistsFlag = p.is_block_device()
 
         # Convert rescueDirectDiscMode to Boolean
         self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode)

@@ -96,9 +96,19 @@ class omimgrGUI(tk.Frame):
             msg = ('Cannot write to directory ' + self.disc.dirOut)
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.disc.deviceAccessibleFlag:
+        if not self.disc.deviceExistsFlag:
             inputValidateFlag = False
-            msg = ('Tape device is not accessible')
+            msg = ('Selected device is not accessible')
+            tkMessageBox.showerror("ERROR", msg)
+        
+        if not self.disc.readomInstalled:
+            inputValidateFlag = False
+            msg = ('readom not installed')
+            tkMessageBox.showerror("ERROR", msg)
+    
+        if not self.disc.ddrescueInstalled:
+            inputValidateFlag = False
+            msg = ('readom not installed')
             tkMessageBox.showerror("ERROR", msg)
 
         # Ask confirmation if output files exist already
