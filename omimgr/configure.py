@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""Post-install / configuration script for tapeimgr"""
+"""Post-install / configuration script for omimgr"""
 
 import os
 import io
@@ -16,7 +16,7 @@ def parseCommandLine(parser):
                         action='store_true',
                         dest='removeFlag',
                         default=False,
-                        help='remove all tapeimgr configuration files')
+                        help='remove all omimgr configuration files')
     # Parse arguments
     args = parser.parse_args()
     return args
@@ -38,26 +38,26 @@ def writeConfigFile(configRootDir, removeFlag):
 
     # Create configuration directory under configRootDir
 
-    configDir = os.path.join(configRootDir, 'tapeimgr')
+    configDir = os.path.join(configRootDir, 'omimgr')
 
     if not removeFlag:
         if not os.path.isdir(configDir):
             os.mkdir(configDir)
 
     # Path to configuration file
-    fConfig = os.path.join(configDir, 'tapeimgr.json')
+    fConfig = os.path.join(configDir, 'omimgr.json')
 
     # Dictionary with items in configuration file
     configSettings = {}
-    configSettings['files'] = ''
+    configSettings['retries'] = '4'
     configSettings['checksumFileName'] = 'checksums.sha512'
-    configSettings['logFileName'] = 'tapeimgr.log'
+    configSettings['logFileName'] = 'omimgr.log'
     configSettings['metadataFileName'] = 'metadata.json'
-    configSettings['tapeDevice'] = '/dev/nst0'
-    configSettings['initBlockSize'] = '512'
+    configSettings['omDevice'] = '/dev/sr0'
     configSettings['prefix'] = 'file'
-    configSettings['extension'] = 'dd'
-    configSettings['fillBlocks'] = 'False'
+    configSettings['extension'] = 'iso'
+    configSettings['rescueDirectDiscMode'] = 'False'
+    configSettings['readCommand'] = 'readom'
     configSettings['timeZone'] = 'Europe/Amsterdam'
     configSettings['defaultDir'] = ''
 
@@ -85,22 +85,22 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
     pathName = os.path.abspath(os.path.dirname(sys.argv[0]))
 
     # Locate icon file in package
-    iconFile = os.path.join(packageDir, 'icons', 'tapeimgr.png')
+    iconFile = os.path.join(packageDir, 'icons', 'omimgr.png')
     if not os.path.isfile(iconFile):
         msg = 'cannot find icon file'
         errorExit(msg)
 
-    fDesktop = os.path.join(desktopDir, 'tapeimgr.desktop')
-    fApplications = os.path.join(applicationsDir, 'tapeimgr.desktop')
+    fDesktop = os.path.join(desktopDir, 'omimgr.desktop')
+    fApplications = os.path.join(applicationsDir, 'omimgr.desktop')
 
     # List of desktop file lines
     desktopList = []
     desktopList.append('[Desktop Entry]')
     desktopList.append('Type=Application')
     desktopList.append('Encoding=UTF-8')
-    desktopList.append('Name=tapeimgr')
-    desktopList.append('Comment=Simple tape imaging and extraction tool')
-    desktopList.append('Exec=' + os.path.join(pathName, 'tapeimgr'))
+    desktopList.append('Name=omimgr')
+    desktopList.append('Comment=Simple optical media imaging and extraction tool')
+    desktopList.append('Exec=' + os.path.join(pathName, 'omimgr'))
     desktopList.append('Icon=' + iconFile)
     desktopList.append('Terminal=false')
     desktopList.append('Categories=Utility;System;GTK')
@@ -142,7 +142,7 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
 def main():
     """
     Creates the following items:
-    - configuration directory tapeimgr in ~/.config/ or /etc/
+    - configuration directory omimgr in ~/.config/ or /etc/
     - configuration file in configuration directory
     - desktop file in  ~/.local/share/applications/ or /usr/share/applications
     - desktop file in ~/Desktop
@@ -151,7 +151,7 @@ def main():
     """
 
     # Parse command line
-    parser = argparse.ArgumentParser(description='tapeingr configuration tool')
+    parser = argparse.ArgumentParser(description='omimgr configuration tool')
     args = parseCommandLine(parser)
     removeFlag = args.removeFlag
 
@@ -206,7 +206,7 @@ def main():
 
     writeConfigFile(configRootDir, removeFlag)
     writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag)
-    infoMessage('tapeimgr configuration completed successfully!')
+    infoMessage('omimgr configuration completed successfully!')
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-Tapeimgr, automated reading of tape
+ommgr, automated reading of optical media
 Graphical user interface
 
 Author: Johan van der Knijff
@@ -19,11 +19,11 @@ from tkinter import filedialog as tkFileDialog
 from tkinter import scrolledtext as ScrolledText
 from tkinter import messagebox as tkMessageBox
 from tkinter import ttk
-from .tape import Tape
+from .om import Disc
 from . import config
 
 
-class tapeimgrGUI(tk.Frame):
+class omimgrGUI(tk.Frame):
 
     """This class defines the graphical user interface + associated functions
     for associated actions
@@ -38,21 +38,21 @@ class tapeimgrGUI(tk.Frame):
         # Create a logging handler using a queue
         self.log_queue = queue.Queue(-1)
         self.queue_handler = QueueHandler(self.log_queue)
-        # Create tape instance
-        self.tape = Tape()
+        # Create disc instance
+        self.disc = Disc()
         self.t1 = None
         # Read configuration file
-        self.tape.getConfiguration()
+        self.disc.getConfiguration()
         # Set dirOut, depending on whether value from config is a directory
-        if os.path.isdir(self.tape.defaultDir):
-            self.tape.dirOut = self.tape.defaultDir
+        if os.path.isdir(self.disc.defaultDir):
+            self.disc.dirOut = self.disc.defaultDir
         else:
-            self.tape.dirOut = os.path.expanduser("~")
+            self.disc.dirOut = os.path.expanduser("~")
         # Build the GUI
         self.build_gui()
 
     def on_quit(self):
-        """Quit tapeimgr"""
+        """Quit omimgr"""
         os._exit(0)
 
     def on_submit(self):
@@ -62,50 +62,49 @@ class tapeimgrGUI(tk.Frame):
         inputValidateFlag = True
 
         # Fetch entered values (strip any leading / trailing whitespace characters)
-        self.tape.tapeDevice = self.tapeDevice_entry.get().strip()
-        self.tape.initBlockSize = self.initBlockSize_entry.get().strip()
-        self.tape.files = self.files_entry.get().strip()
-        self.tape.prefix = self.prefix_entry.get().strip()
-        self.tape.extension = self.extension_entry.get().strip()
-        self.tape.identifier = self.identifier_entry.get().strip()
-        self.tape.description = self.description_entry.get(1.0, tk.END).strip()
-        self.tape.notes = self.notes_entry.get(1.0, tk.END).strip()
-        self.tape.fillBlocks = self.fBlocks.get()
+        self.disc.omDevice = self.omDevice_entry.get().strip()
+        rcItems = self.readCommand_entry.get(0, tk.END) # Tuple of all selection items
+        rcSel = self.readCommand_entry.curselection() # Tuple with index of selected item
+        self.disc.readCommand = rcItems[rcSel[0]]
+        self.disc.retries = self.retries_entry.get().strip()
+        self.disc.prefix = self.prefix_entry.get().strip()
+        self.disc.extension = self.extension_entry.get().strip()
+        self.disc.identifier = self.identifier_entry.get().strip()
+        self.disc.description = self.description_entry.get(1.0, tk.END).strip()
+        self.disc.notes = self.notes_entry.get(1.0, tk.END).strip()
+        #self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
+        self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
+        ## TEST
+        uInput = [self.disc.omDevice, self.disc.readCommand, self.disc.prefix,
+                  self.disc.extension, self.disc.retries, self.disc.rescueDirectDiscMode,
+                  self.disc.identifier, self.disc.description, self.disc.notes]
+        for item in uInput:
+            print(item)
+        ## TEST
 
         # Validate input
-        self.tape.validateInput()
+        self.disc.validateInput()
 
         # Show error message for any parameters that didn't pass validation
-        if not self.tape.dirOutIsDirectory:
+        if not self.disc.dirOutIsDirectory:
             inputValidateFlag = False
-            msg = ("Output directory doesn't exist:\n" + self.tape.dirOut)
+            msg = ("Output directory doesn't exist:\n" + self.disc.dirOut)
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.tape.dirOutIsWritable:
+        if not self.disc.dirOutIsWritable:
             inputValidateFlag = False
-            msg = ('Cannot write to directory ' + self.tape.dirOut)
+            msg = ('Cannot write to directory ' + self.disc.dirOut)
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.tape.deviceAccessibleFlag:
+        if not self.disc.deviceAccessibleFlag:
             inputValidateFlag = False
             msg = ('Tape device is not accessible')
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.tape.blockSizeIsValid:
-            inputValidateFlag = False
-            msg = ('Block size not valid')
-            tkMessageBox.showerror("ERROR", msg)
-
-        if not self.tape.filesIsValid:
-            inputValidateFlag = False
-            msg = ('Files value not valid\n'
-                   '(must be comma-delimited string of integer numbers, or empty)')
-            tkMessageBox.showerror("ERROR", msg)
-
         # Ask confirmation if output files exist already
         outDirConfirmFlag = True
-        if self.tape.outputExistsFlag:
-            msg = ('writing to ' + self.tape.dirOut + ' will overwrite existing files!\n'
+        if self.disc.outputExistsFlag:
+            msg = ('writing to ' + self.disc.dirOut + ' will overwrite existing files!\n'
                    'press OK to continue, otherwise press Cancel ')
             outDirConfirmFlag = tkMessageBox.askokcancel("Overwrite files?", msg)
 
@@ -118,8 +117,8 @@ class tapeimgrGUI(tk.Frame):
                 # Start polling log messages from the queue
                 self.after(100, self.poll_log_queue)
             except OSError:
-                # Something went wrong while trying to write to lof file
-                msg = ('error trying to write log file to ' + self.tape.logFile)
+                # Something went wrong while trying to write to log file
+                msg = ('error trying to write log file to ' + self.disc.logFile)
                 tkMessageBox.showerror("ERROR", msg)
                 successLogger = False
 
@@ -128,38 +127,38 @@ class tapeimgrGUI(tk.Frame):
                 self.start_button.config(state='disabled')
                 self.quit_button.config(state='disabled')
 
-                # Launch tape processing function as subprocess
-                self.t1 = threading.Thread(target=self.tape.processTape)
+                # Launch disc processing function as subprocess
+                self.t1 = threading.Thread(target=self.disc.processTape)
                 self.t1.start()
 
 
     def selectOutputDirectory(self, event=None):
         """Select output directory"""
-        dirInit = self.tape.dirOut
-        self.tape.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
-        self.outDirLabel['text'] = self.tape.dirOut
+        dirInit = self.disc.dirOut
+        self.disc.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
+        self.outDirLabel['text'] = self.disc.dirOut
 
-    def decreaseBlocksize(self):
-        """Decrease value of initBlockSize"""
+    def decreaseRetries(self):
+        """Decrease value of retries"""
         try:
-            blockSizeOld = int(self.initBlockSize_entry.get().strip())
+            retriesOld = int(self.retries_entry.get().strip())
         except ValueError:
             # Reset if user manually entered something weird
-            blockSizeOld = int(self.tape.initBlockSizeDefault)
-        blockSizeNew = max(blockSizeOld - 512, 512)
-        self.initBlockSize_entry.delete(0, tk.END)
-        self.initBlockSize_entry.insert(tk.END, str(blockSizeNew))
+            retriesOld = int(self.disc.retriesDefault)
+        retriesNew = max(0, retriesOld - 1)
+        self.retries_entry.delete(0, tk.END)
+        self.retries_entry.insert(tk.END, str(retriesNew))
 
-    def increaseBlocksize(self):
-        """Increase value of initBlockSize"""
+    def increaseRetries(self):
+        """Increase value of retries"""
         try:
-            blockSizeOld = int(self.initBlockSize_entry.get().strip())
+            retriesOld = int(self.retries_entry.get().strip())
         except ValueError:
             # Reset if user manually entered something weird
-            blockSizeOld = int(self.tape.initBlockSizeDefault)
-        blockSizeNew = blockSizeOld + 512
-        self.initBlockSize_entry.delete(0, tk.END)
-        self.initBlockSize_entry.insert(tk.END, str(blockSizeNew))
+            retriesOld = int(self.disc.retriesDefault)
+        retriesNew = retriesOld + 1
+        self.retries_entry.delete(0, tk.END)
+        self.retries_entry.insert(tk.END, str(retriesNew))
 
     def insertUUID(self):
         """Insert UUID into identifier field"""
@@ -170,7 +169,7 @@ class tapeimgrGUI(tk.Frame):
     def build_gui(self):
         """Build the GUI"""
 
-        self.root.title('tapeimgr v.' + config.version)
+        self.root.title('omimgr v.' + config.version)
         self.root.option_add('*tearOff', 'FALSE')
         self.grid(column=0, row=0, sticky='w')
         self.grid_columnconfigure(0, weight=0, pad=0)
@@ -186,56 +185,59 @@ class tapeimgrGUI(tk.Frame):
                                             command=self.selectOutputDirectory,
                                             width=20)
         self.outDirButton_entry.grid(column=0, row=3, sticky='w')
-        self.outDirLabel = tk.Label(self, text=self.tape.dirOut)
+        self.outDirLabel = tk.Label(self, text=self.disc.dirOut)
         self.outDirLabel.update()
         self.outDirLabel.grid(column=1, row=3, sticky='w')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=5, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=4, columnspan=4, sticky='ew')
 
-        # Tape Device
-        tk.Label(self, text='Tape Device').grid(column=0, row=6, sticky='w')
-        self.tapeDevice_entry = tk.Entry(self, width=20)
-        self.tapeDevice_entry['background'] = 'white'
-        self.tapeDevice_entry.insert(tk.END, self.tape.tapeDevice)
-        self.tapeDevice_entry.grid(column=1, row=6, sticky='w')
+        # Device
+        tk.Label(self, text='Optical device').grid(column=0, row=5, sticky='w')
+        self.omDevice_entry = tk.Entry(self, width=20)
+        self.omDevice_entry['background'] = 'white'
+        self.omDevice_entry.insert(tk.END, self.disc.omDevice)
+        self.omDevice_entry.grid(column=1, row=5, sticky='w')
 
-        # Initial Block Size
-        tk.Label(self, text='Initial Block Size').grid(column=0, row=7, sticky='w')
-        self.initBlockSize_entry = tk.Entry(self, width=20)
-        self.initBlockSize_entry['background'] = 'white'
-        self.initBlockSize_entry.insert(tk.END, self.tape.initBlockSize)
-        self.initBlockSize_entry.grid(column=1, row=7, sticky='w')
-        self.decreaseBSButton = tk.Button(self, text='-', command=self.decreaseBlocksize, width=1)
-        self.decreaseBSButton.grid(column=1, row=7, sticky='e')
-        self.increaseBSButton = tk.Button(self, text='+', command=self.increaseBlocksize, width=1)
-        self.increaseBSButton.grid(column=2, row=7, sticky='w')
-
-        # Files
-        tk.Label(self, text='Files (comma-separated list)').grid(column=0, row=8, sticky='w')
-        self.files_entry = tk.Entry(self, width=20)
-        self.files_entry['background'] = 'white'
-        self.files_entry.insert(tk.END, self.tape.files)
-        self.files_entry.grid(column=1, row=8, sticky='w')
+        # Read command (readom or ddrescue)
+        tk.Label(self, text='Read command').grid(column=0, row=6, sticky='w')
+        self.readCommand_entry = tk.Listbox(self, selectmode=tk.SINGLE, height=2)
+        self.readCommand_entry['background'] = 'white'
+        for item in ["readom", "ddrescue"]:
+            self.readCommand_entry.insert(tk.END, item)
+        self.readCommand_entry.select_set(0)
+        self.readCommand_entry.grid(column=1, row=6, sticky='w')
 
         # Prefix
-        tk.Label(self, text='Prefix').grid(column=0, row=9, sticky='w')
+        tk.Label(self, text='Prefix').grid(column=0, row=7, sticky='w')
         self.prefix_entry = tk.Entry(self, width=20)
         self.prefix_entry['background'] = 'white'
-        self.prefix_entry.insert(tk.END, self.tape.prefix)
-        self.prefix_entry.grid(column=1, row=9, sticky='w')
+        self.prefix_entry.insert(tk.END, self.disc.prefix)
+        self.prefix_entry.grid(column=1, row=7, sticky='w')
 
         # Extension
-        tk.Label(self, text='Extension').grid(column=0, row=10, sticky='w')
+        tk.Label(self, text='Extension').grid(column=0, row=8, sticky='w')
         self.extension_entry = tk.Entry(self, width=20)
         self.extension_entry['background'] = 'white'
-        self.extension_entry.insert(tk.END, self.tape.extension)
-        self.extension_entry.grid(column=1, row=10, sticky='w')
+        self.extension_entry.insert(tk.END, self.disc.extension)
+        self.extension_entry.grid(column=1, row=8, sticky='w')
 
-        # Fill failed blocks
-        tk.Label(self, text='Fill failed blocks').grid(column=0, row=11, sticky='w')
-        self.fBlocks = tk.IntVar()
-        self.fillblocks_entry = tk.Checkbutton(self, variable=self.tape.fillBlocks)
-        self.fillblocks_entry.grid(column=1, row=11, sticky='w')
+        # Retries
+        tk.Label(self, text='Retries').grid(column=0, row=9, sticky='w')
+        self.retries_entry = tk.Entry(self, width=20)
+        self.retries_entry['background'] = 'white'
+        self.retries_entry.insert(tk.END, self.disc.retriesDefault)
+        self.retries_entry.grid(column=1, row=9, sticky='w')
+        self.decreaseRetriesButton = tk.Button(self, text='-', command=self.decreaseRetries, width=1)
+        self.decreaseRetriesButton.grid(column=1, row=9, sticky='e')
+        self.increaseRetriesButton = tk.Button(self, text='+', command=self.increaseRetries, width=1)
+        self.increaseRetriesButton.grid(column=2, row=9, sticky='w')
+
+        # Direct disc mode
+        tk.Label(self, text='Direct disc mode (ddrescue)').grid(column=0, row=11, sticky='w')
+        self.rescueDirectDiscMode = tk.BooleanVar()
+        self.rescueDirectDiscMode.set(self.disc.rescueDirectDiscMode)
+        self.rescueDirectDiscMode_entry = tk.Checkbutton(self, variable=self.rescueDirectDiscMode)
+        self.rescueDirectDiscMode_entry.grid(column=1, row=11, sticky='w')
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=12, columnspan=4, sticky='ew')
 
@@ -243,7 +245,7 @@ class tapeimgrGUI(tk.Frame):
         tk.Label(self, text='Identifier').grid(column=0, row=13, sticky='w')
         self.identifier_entry = tk.Entry(self, width=20)
         self.identifier_entry['background'] = 'white'
-        self.identifier_entry.insert(tk.END, self.tape.identifier)
+        self.identifier_entry.insert(tk.END, self.disc.identifier)
         self.identifier_entry.grid(column=1, row=13, sticky='w')
         self.uuidButton = tk.Button(self, text='UUID', command=self.insertUUID, width=2)
         self.uuidButton.grid(column=1, row=13, sticky='e')
@@ -252,14 +254,14 @@ class tapeimgrGUI(tk.Frame):
         tk.Label(self, text='Description').grid(column=0, row=14, sticky='w')
         self.description_entry = tk.Text(self, height=2, width=35)
         self.description_entry['background'] = 'white'
-        self.description_entry.insert(tk.END, self.tape.description)
+        self.description_entry.insert(tk.END, self.disc.description)
         self.description_entry.grid(column=1, row=14, sticky='w', columnspan=1)
 
         # Notes entry field
         tk.Label(self, text='Notes').grid(column=0, row=15, sticky='w')
         self.notes_entry = tk.Text(self, height=6, width=35)
         self.notes_entry['background'] = 'white'
-        self.notes_entry.insert(tk.END, self.tape.notes)
+        self.notes_entry.insert(tk.END, self.disc.notes)
         self.notes_entry.grid(column=1, row=15, sticky='w', columnspan=1)
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=16, columnspan=4, sticky='ew')
@@ -295,46 +297,44 @@ class tapeimgrGUI(tk.Frame):
             child.grid_configure(padx=5, pady=5)
 
         # Display message and exit if config file could not be read
-        if not self.tape.configSuccess:
+        if not self.disc.configSuccess:
             msg = ("Error reading configuration file! \n" +
-                   "Run '(sudo) tapeimgr-config' to fix this.")
+                   "Run '(sudo) omimgr-config' to fix this.")
             errorExit(msg)
 
     def reset_gui(self):
         """Reset the GUI"""
         # Create new tape instance
-        self.tape = Tape()
+        self.disc = Disc()
         # Read configuration
-        self.tape.getConfiguration()
+        self.disc.getConfiguration()
         # Set dirOut, depending on whether value from config is a directory
-        if os.path.isdir(self.tape.defaultDir):
-            self.tape.dirOut = self.tape.defaultDir
+        if os.path.isdir(self.disc.defaultDir):
+            self.disc.dirOut = self.disc.defaultDir
         else:
-            self.tape.dirOut = os.path.expanduser("~")
+            self.disc.dirOut = os.path.expanduser("~")
         # Logging stuff
         self.logger = logging.getLogger()
         # Create a logging handler using a queue
         self.log_queue = queue.Queue(-1)
         self.queue_handler = QueueHandler(self.log_queue)
         # Reset all entry widgets
-        self.outDirLabel['text'] = self.tape.dirOut
-        self.tapeDevice_entry.delete(0, tk.END)
-        self.tapeDevice_entry.insert(tk.END, self.tape.tapeDevice)
-        self.initBlockSize_entry.delete(0, tk.END)
-        self.initBlockSize_entry.insert(tk.END, self.tape.initBlockSize)
-        self.files_entry.delete(0, tk.END)
-        self.files_entry.insert(tk.END, self.tape.files)
+        self.outDirLabel['text'] = self.disc.dirOut
+        self.omDevice_entry.delete(0, tk.END)
+        self.omDevice_entry.insert(tk.END, self.disc.omDevice)
+        self.retries_entry.delete(0, tk.END)
+        self.retries_entry.insert(tk.END, self.disc.retriesDefault)
         self.prefix_entry.delete(0, tk.END)
-        self.prefix_entry.insert(tk.END, self.tape.prefix)
+        self.prefix_entry.insert(tk.END, self.disc.prefix)
         self.extension_entry.delete(0, tk.END)
-        self.extension_entry.insert(tk.END, self.tape.extension)
+        self.extension_entry.insert(tk.END, self.disc.extension)
         self.identifier_entry.delete(0, tk.END)
-        self.identifier_entry.insert(tk.END, self.tape.identifier)
+        self.identifier_entry.insert(tk.END, self.disc.identifier)
         self.description_entry.delete(1.0, tk.END)
-        self.description_entry.insert(tk.END, self.tape.description)
+        self.description_entry.insert(tk.END, self.disc.description)
         self.notes_entry.delete(1.0, tk.END)
-        self.notes_entry.insert(tk.END, self.tape.notes)
-        self.fillblocks_entry.variable = self.tape.fillBlocks
+        self.notes_entry.insert(tk.END, self.disc.notes)
+        self.rescueDirectDiscMode_entry.variable = self.disc.rescueDirectDiscMode
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
@@ -342,7 +342,7 @@ class tapeimgrGUI(tk.Frame):
         """Set up logger configuration"""
 
         # Basic configuration
-        logging.basicConfig(filename=self.tape.logFile,
+        logging.basicConfig(filename=self.disc.logFile,
                             level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -410,8 +410,8 @@ def main():
 
     packageDir = os.path.dirname(os.path.abspath(__file__))
     root = tk.Tk()
-    root.iconphoto(True, tk.PhotoImage(file=os.path.join(packageDir, 'icons', 'tapeimgr.png')))
-    myGUI = tapeimgrGUI(root)
+    root.iconphoto(True, tk.PhotoImage(file=os.path.join(packageDir, 'icons', 'omimgr.png')))
+    myGUI = omimgrGUI(root)
     # This ensures application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
 
@@ -420,7 +420,7 @@ def main():
             root.update_idletasks()
             root.update()
             time.sleep(0.1)
-            if myGUI.tape.finishedFlag:
+            if myGUI.disc.finishedFlag:
                 myGUI.t1.join()
                 #myGUI.logger.removeHandler(myGUI.queue_handler)
                 #myGUI.queue_handler.close()
@@ -429,12 +429,12 @@ def main():
                     handler.close()
                     myGUI.logger.removeHandler(handler)
 
-                if myGUI.tape.tapeDeviceIOError:
+                if myGUI.disc.omDeviceIOError:
                     # Tape device not accessible
-                    msg = ('Cannot access tape device ' + myGUI.tape.tapeDevice +
+                    msg = ('Cannot access tape device ' + myGUI.disc.omDevice +
                            '. Check that device exits, and that tapeimgr is run as root')
                     errorExit(msg)
-                elif myGUI.tape.successFlag:
+                elif myGUI.disc.successFlag:
                     # Tape extraction completed with no errors
                     msg = ('Tape processed successfully without errors')
                     tkMessageBox.showinfo("Success", msg)

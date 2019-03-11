@@ -1,9 +1,8 @@
 #! /usr/bin/env python3
 
 
-"""tapeimgr.__main__: executed when tapeimgr directory is called as script."""
+"""omimgr.__main__: executed when omimgr directory is called as script."""
 
-from .tapeimgr import main
+from .omimgr import main
 
 main()
-

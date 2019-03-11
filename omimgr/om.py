@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-"""This module contains the Tape class with functions that
-do the actual tape imaging.
+"""This module contains the Disc class with functions that
+do the actual imaging.
 """
 
 import os
@@ -12,19 +12,18 @@ import glob
 from . import config
 from . import shared
 
-class Tape:
-    """Tape class"""
+class Disc:
+    """Disc class"""
     def __init__(self):
-        """initialise Tape class instance"""
+        """initialise Disc class instance"""
 
         # Input collected by GUI / CLI
         self.dirOut = ''
-        self.tapeDevice = ''
-        self.initBlockSize = ''
-        self.files = ''
+        self.omDevice = ''
         self.prefix = ''
         self.extension = ''
-        self.fillBlocks = ''
+        self.rescueDirectDiscMode = ''
+        self.retriesDefault = ''
         self.identifier = ''
         self.description = ''
         self.notes = ''
@@ -39,9 +38,9 @@ class Tape:
         packageDir = os.path.dirname(os.path.abspath(__file__))
         homeDir = os.path.normpath(os.path.expanduser("~"))
         if packageDir.startswith(homeDir):
-            self.configFile = os.path.join(homeDir, '.config/tapeimgr/tapeimgr.json')
+            self.configFile = os.path.join(homeDir, '.config/omimgr/omimgr.json')
         else:
-            self.configFile = os.path.normpath('/etc/tapeimgr/tapeimgr.json')
+            self.configFile = os.path.normpath('/etc/omimgr/omimgr.json')
 
         # Miscellaneous attributes
         self.logFile = ''
@@ -50,7 +49,7 @@ class Tape:
         self.metadataFileName = ''
         self.initBlockSizeDefault = ''
         self.finishedFlag = False
-        self.tapeDeviceIOError = False
+        self.omDeviceIOError = False
         self.successFlag = True
         self.configSuccess = True
         self.endOfTape = False
@@ -76,16 +75,14 @@ class Tape:
         if self.configSuccess:
             # Update class variables
             try:
-                self.files = configDict['files']
                 self.logFileName = configDict['logFileName']
                 self.checksumFileName = configDict['checksumFileName']
                 self.metadataFileName = configDict['metadataFileName']
-                self.tapeDevice = configDict['tapeDevice']
-                self.initBlockSize = configDict['initBlockSize']
-                self.initBlockSizeDefault = self.initBlockSize
+                self.omDevice = configDict['omDevice']
                 self.prefix = configDict['prefix']
                 self.extension = configDict['extension']
-                self.fillBlocks = bool(configDict['fillBlocks'])
+                self.rescueDirectDiscMode = configDict['rescueDirectDiscMode']
+                self.retriesDefault = configDict['retries']
                 self.timeZone = configDict['timeZone']
                 self.defaultDir = configDict['defaultDir']
             except KeyError:
@@ -108,44 +105,15 @@ class Tape:
         # Check if tape device is accessible
         args = ['mt']
         args.append('-f')
-        args.append(self.tapeDevice)
+        args.append(self.omDevice)
         args.append('status')
         mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
 
         if mtStatus == 0:
             self.deviceAccessibleFlag = True
 
-        # Check if initial block size is valid (i.e. a multiple of 512)
-        try:
-            self.initBlockSize = int(self.initBlockSize)
-
-            noBlocks = (self.initBlockSize/512)
-
-            if not noBlocks.is_integer():
-                self.blockSizeIsValid = False
-            elif noBlocks == 0:
-                self.blockSizeIsValid = False
-            else:
-                self.blockSizeIsValid = True
-        except ValueError:
-            self.blockSizeIsValid = False
-
-        # Check if files entry is valid; also split files string
-        # to list of integers
-        if self.files.strip() == '':
-            # Empty string (default): OK
-            self.filesIsValid = True
-        else:
-            try:
-                # Each item in list is an integer: OK
-                self.filesList = [int(i) for i in self.files.split(',')]
-                self.filesIsValid = True
-            except ValueError:
-                # One or more items are not an integer
-                self.filesIsValid = False
-
-        # Convert fillBlocks to Boolean
-        self.fillBlocks = bool(self.fillBlocks)
+        # Convert rescueDirectDiscMode to Boolean
+        self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode)
 
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
@@ -158,13 +126,12 @@ class Tape:
 
         # Write some general info to log file
         logging.info('***************************')
-        logging.info('*** TAPE EXTRACTION LOG ***')
+        logging.info('*** OMIMGR EXTRACTION LOG ***')
         logging.info('***************************\n')
         logging.info('*** USER INPUT ***')
         logging.info('dirOut: ' + self.dirOut)
-        logging.info('tapeDevice: ' + self.tapeDevice)
+        logging.info('omDevice: ' + self.omDevice)
         logging.info('initial blockSize: ' + str(self.initBlockSize))
-        logging.info('files: ' + self.files)
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
         logging.info('fill blocks: ' + str(self.fillBlocks))
@@ -184,13 +151,13 @@ class Tape:
 
         args = ['mt']
         args.append('-f')
-        args.append(self.tapeDevice)
+        args.append(self.omDevice)
         args.append('status')
         mtStatus, mtOut, mtErr = shared.launchSubProcess(args)
 
         if mtStatus != 0:
             # Abort if tape device is not accessible
-            self.tapeDeviceIOError = True
+            self.omDeviceIOError = True
             self.successFlag = False
             logging.critical('Exiting because tape device is not accessible')
             logging.info('Success: ' + str(self.successFlag))
@@ -226,7 +193,7 @@ class Tape:
 
         args = ['mt']
         args.append('-f')
-        args.append(self.tapeDevice)
+        args.append(self.omDevice)
         args.append('rewind')
         mtStatus, mtOut, mtErr = shared.launchSubProcess(args)
 
@@ -234,7 +201,7 @@ class Tape:
 
         args = ['mt']
         args.append('-f')
-        args.append(self.tapeDevice)
+        args.append(self.omDevice)
         args.append('eject')
         mtStatus, mtOut, mtErr = shared.launchSubProcess(args)
 
@@ -246,7 +213,7 @@ class Tape:
         metadata['description'] = self.description
         metadata['notes'] = self.notes
         metadata['tapeimagrVersion'] = config.version
-        metadata['tapeDevice'] = self.tapeDevice
+        metadata['omDevice'] = self.omDevice
         metadata['initBlockSize'] = self.initBlockSize
         metadata['files'] = self.files
         metadata['prefix'] = self.prefix
@@ -299,7 +266,7 @@ class Tape:
             logging.info('*** Extracting file # ' + str(self.file) + ' to file ' + ofName + ' ***')
 
             args = ['dd']
-            args.append('if=' + self.tapeDevice)
+            args.append('if=' + self.omDevice)
             args.append('of='+ ofName)
             args.append('bs=' + str(self.blockSize))
 
@@ -320,7 +287,7 @@ class Tape:
 
             args = ['mt']
             args.append('-f')
-            args.append(self.tapeDevice)
+            args.append(self.omDevice)
             args.append('fsf')
             args.append('1')
             mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
@@ -329,7 +296,7 @@ class Tape:
         # the end of the tape was reached
         args = ['mt']
         args.append('-f')
-        args.append(self.tapeDevice)
+        args.append(self.omDevice)
         args.append('fsr')
         args.append('1')
         mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
@@ -338,7 +305,7 @@ class Tape:
             # Another file exists. Position tape one record backward
             args = ['mt']
             args.append('-f')
-            args.append(self.tapeDevice)
+            args.append(self.omDevice)
             args.append('bsr')
             args.append('1')
             mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
@@ -362,7 +329,7 @@ class Tape:
                          str(self.blockSize) + ' ***')
 
             args = ['dd']
-            args.append('if=' + self.tapeDevice)
+            args.append('if=' + self.omDevice)
             args.append('of=/dev/null')
             args.append('bs=' + str(self.blockSize))
             args.append('count=1')
@@ -371,7 +338,7 @@ class Tape:
             # Position tape 1 record backward (i.e. to the start of this file)
             args = ['mt']
             args.append('-f')
-            args.append(self.tapeDevice)
+            args.append(self.omDevice)
             args.append('bsr')
             args.append('1')
             mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
