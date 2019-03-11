@@ -22,6 +22,8 @@ class Disc:
         # Input collected by GUI / CLI
         self.dirOut = ''
         self.omDevice = ''
+        self.readCommand = ''
+        self.retries = ''
         self.prefix = ''
         self.extension = ''
         self.rescueDirectDiscMode = ''
@@ -116,8 +118,8 @@ class Disc:
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
 
-    def processTape(self):
-        """Process a tape"""
+    def processDisc(self):
+        """Process a disc"""
 
         # Create dictionary for storing metadata (which are later written to file)
         metadata = {}
@@ -129,79 +131,30 @@ class Disc:
         logging.info('*** USER INPUT ***')
         logging.info('dirOut: ' + self.dirOut)
         logging.info('omDevice: ' + self.omDevice)
-        logging.info('initial blockSize: ' + str(self.initBlockSize))
+        logging.info('read command: ' + self.readCommand)
+        logging.info('retries: ' + str(self.retries))
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
-        logging.info('fill blocks: ' + str(self.fillBlocks))
+        logging.info('direct disc mode (ddrescue only): ' + str(self.rescueDirectDiscMode))
 
         ## Acquisition start date/time
         acquisitionStart = shared.generateDateTime(self.timeZone)
 
-        if self.fillBlocks:
-            # dd's conv=sync flag results in padding bytes for each block if block
-            # size is too large, so override user-defined value with default
-            # if -f flag was used
-            self.initBlockSize = 512
-            logging.info('Reset initial block size to 512 because -f flag is used')
+        # Unmount disc
+        args = ['umount', self.omDevice]
 
-        # Get tape status, output to log file
-        logging.info('*** Getting tape status ***')
+        if self.readCommand == "readom":
+            args = ['readom']
+            args.append('retries=' + str(self.retries))
+            args.append('dev=' + self.omDevice)
+            args.append('f=' + self.prefix + '.' + self.suffix)
 
-        args = ['mt']
-        args.append('-f')
-        args.append(self.omDevice)
-        args.append('status')
-        mtStatus, mtOut, mtErr = shared.launchSubProcess(args)
-
-        if mtStatus != 0:
-            # Abort if tape device is not accessible
-            self.omDeviceIOError = True
-            self.successFlag = False
-            logging.critical('Exiting because tape device is not accessible')
-            logging.info('Success: ' + str(self.successFlag))
-
-            # Wait 2 seconds to avoid race condition
-            time.sleep(2)
-
-            # Set finishedFlag
-            self.finishedFlag = True
-
-        # Iterate over all files on tape until end is detected
-        while not self.endOfTape:
-            # Only extract files defined by files parameter
-            # (if file parameter is empty all files are extracted)
-            if self.file in self.filesList or self.filesList == []:
-                self.extractFile = True
-            else:
-                self.extractFile = False
-
-            # Call file processing function
-            self.processFile()
-
-            # Increase file number
-            self.file += 1
+        readStatus, readOut, readErr = shared.launchSubProcess(args)
 
         # Create checksum file
         logging.info('*** Creating checksum file ***')
         checksumFile = os.path.join(self.dirOut, self.checksumFileName)
         writeFlag, checksums = shared.checksumDirectory(self.dirOut, self.extension, checksumFile)
-
-        # Rewind and eject the tape
-        logging.info('*** Rewinding tape ***')
-
-        args = ['mt']
-        args.append('-f')
-        args.append(self.omDevice)
-        args.append('rewind')
-        mtStatus, mtOut, mtErr = shared.launchSubProcess(args)
-
-        logging.info('*** Ejecting tape ***')
-
-        args = ['mt']
-        args.append('-f')
-        args.append(self.omDevice)
-        args.append('eject')
-        mtStatus, mtOut, mtErr = shared.launchSubProcess(args)
 
         # Acquisition end date/time
         acquisitionEnd = shared.generateDateTime(self.timeZone)
@@ -212,8 +165,6 @@ class Disc:
         metadata['notes'] = self.notes
         metadata['tapeimagrVersion'] = config.version
         metadata['omDevice'] = self.omDevice
-        metadata['initBlockSize'] = self.initBlockSize
-        metadata['files'] = self.files
         metadata['prefix'] = self.prefix
         metadata['extension'] = self.extension
         metadata['fillBlocks'] = self.fillBlocks
@@ -236,9 +187,9 @@ class Disc:
         logging.info('Success: ' + str(self.successFlag))
 
         if self.successFlag:
-            logging.info('Tape processed successfully without errors')
+            logging.info('Disc processed successfully without errors')
         else:
-            logging.error('One or more errors occurred while processing tape, \
+            logging.error('One or more errors occurred while processing disc, \
             check log file for details')
 
         # Set finishedFlag
@@ -246,104 +197,3 @@ class Disc:
 
         # Wait 2 seconds to avoid race condition
         time.sleep(2)
-
-    def processFile(self):
-        """Process a file"""
-
-        if self.extractFile:
-            # Determine block size for this file
-            logging.info('*** Establishing blockSize ***')
-            self.findBlockSize()
-            logging.info('Block size: ' + str(self.blockSize))
-
-            # Name of output file for this file
-            paddingChars = max(10 - len(self.prefix), 0)
-            ofName = self.prefix + str(self.file).zfill(paddingChars) + '.' + self.extension
-            ofName = os.path.join(self.dirOut, ofName)
-
-            logging.info('*** Extracting file # ' + str(self.file) + ' to file ' + ofName + ' ***')
-
-            args = ['dd']
-            args.append('if=' + self.omDevice)
-            args.append('of='+ ofName)
-            args.append('bs=' + str(self.blockSize))
-
-            if self.fillBlocks:
-                # Add conv=noerror,sync options to argument list
-                args.append('conv=noerror,sync')
-
-            ddStatus, ddOut, ddErr = shared.launchSubProcess(args)
-
-            if ddStatus != 0:
-                self.successFlag = False
-                logging.error('dd encountered an error while reading the tape')
-
-        else:
-            # Fast-forward tape to next file
-            logging.info('*** Skipping file # ' + str(self.file) +
-                         ', fast-forward to next file ***')
-
-            args = ['mt']
-            args.append('-f')
-            args.append(self.omDevice)
-            args.append('fsf')
-            args.append('1')
-            mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
-
-        # Try to position tape 1 record forward; if this fails this means
-        # the end of the tape was reached
-        args = ['mt']
-        args.append('-f')
-        args.append(self.omDevice)
-        args.append('fsr')
-        args.append('1')
-        mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
-
-        if mtStatus == 0:
-            # Another file exists. Position tape one record backward
-            args = ['mt']
-            args.append('-f')
-            args.append(self.omDevice)
-            args.append('bsr')
-            args.append('1')
-            mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
-        else:
-            # No further files, end of tape reached
-            logging.info('*** Reached end of tape ***')
-            self.endOfTape = True
-
-    def findBlockSize(self):
-        """Find block size, starting from blockSizeInit"""
-
-        # Set blockSize to initBlockSize
-        self.blockSize = self.initBlockSize
-        # Flag that indicates block size was found
-        blockSizeFound = False
-
-        while not blockSizeFound:
-            # Try reading 1 block from tape
-            logging.info('*** Guessing block size for file # ' +
-                         str(self.file)  + ', trial value ' +
-                         str(self.blockSize) + ' ***')
-
-            args = ['dd']
-            args.append('if=' + self.omDevice)
-            args.append('of=/dev/null')
-            args.append('bs=' + str(self.blockSize))
-            args.append('count=1')
-            ddStatus, ddOut, ddErr = shared.launchSubProcess(args, False)
-
-            # Position tape 1 record backward (i.e. to the start of this file)
-            args = ['mt']
-            args.append('-f')
-            args.append(self.omDevice)
-            args.append('bsr')
-            args.append('1')
-            mtStatus, mtOut, mtErr = shared.launchSubProcess(args, False)
-
-            if ddStatus == 0:
-                # Block size found
-                blockSizeFound = True
-            else:
-                # Try again with larger block size
-                self.blockSize += 512

@@ -138,7 +138,7 @@ class omimgrGUI(tk.Frame):
                 self.quit_button.config(state='disabled')
 
                 # Launch disc processing function as subprocess
-                self.t1 = threading.Thread(target=self.disc.processTape)
+                self.t1 = threading.Thread(target=self.disc.processDisc)
                 self.t1.start()
 
 
