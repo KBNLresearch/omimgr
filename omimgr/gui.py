@@ -63,15 +63,13 @@ class omimgrGUI(tk.Frame):
 
         # Fetch entered values (strip any leading / trailing whitespace characters)
         self.disc.omDevice = self.omDevice_entry.get().strip()
-        rcItems = self.readCommand_entry.get(0, tk.END) # Tuple of all selection items
-        rcSel = self.readCommand_entry.curselection() # Tuple with index of selected item
-        # TEST
-        print("rcItems:")
-        print(rcItems)
-        print("rcSel:")
-        print(rcSel)
-        # TEST
-        self.disc.readCommand = rcItems[rcSel[0]]
+
+        # Lookup readCommand for readCommandCode value
+        readCommandCode = self.v.get()
+        for i in self.readCommands:
+            if i[1] == readCommandCode:
+                self.disc.readCommand = i[0]
+
         self.disc.retries = self.retries_entry.get().strip()
         self.disc.prefix = self.prefix_entry.get().strip()
         self.disc.extension = self.extension_entry.get().strip()
@@ -215,44 +213,52 @@ class omimgrGUI(tk.Frame):
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
 
         # Read command (readom or ddrescue)
+        self.v = tk.IntVar()
+        self.v.set(1)
+
+        # List with all possible read commands, corresponding button codes, keyboard
+        # shortcut character (keyboard shortcuts not actually used yet)
+        self.readCommands = [
+            ['readom', 1, 0],
+            ['ddrescue', 2, 3],
+        ]
+
         tk.Label(self, text='Read command').grid(column=0, row=6, sticky='w')
-        self.readCommand_entry = tk.Listbox(self, selectmode=tk.SINGLE, height=2)
-        self.readCommand_entry['background'] = 'white'
-        for item in ["readom", "ddrescue"]:
-            self.readCommand_entry.insert(tk.END, item)
-        self.readCommand_entry.select_set(0)
-        self.readCommand_entry.event_generate("<<ListboxSelect>>")
-        self.readCommand_entry.grid(column=1, row=6, sticky='w')
-        ## TEST
-        rcSel = self.readCommand_entry.curselection()
-        print("rcSel (buildGUI)")
-        print(rcSel)
-        ## TEST
+
+        rowValue = 6
+
+        for readCommand in self.readCommands:
+            self.rb = tk.Radiobutton(self,
+                                     text=readCommand[0],
+                                     variable=self.v,
+                                     value=readCommand[1])
+            self.rb.grid(column=1, row=rowValue, sticky='w')
+            rowValue += 1
 
         # Prefix
-        tk.Label(self, text='Prefix').grid(column=0, row=7, sticky='w')
+        tk.Label(self, text='Prefix').grid(column=0, row=8, sticky='w')
         self.prefix_entry = tk.Entry(self, width=20)
         self.prefix_entry['background'] = 'white'
         self.prefix_entry.insert(tk.END, self.disc.prefix)
-        self.prefix_entry.grid(column=1, row=7, sticky='w')
+        self.prefix_entry.grid(column=1, row=8, sticky='w')
 
         # Extension
-        tk.Label(self, text='Extension').grid(column=0, row=8, sticky='w')
+        tk.Label(self, text='Extension').grid(column=0, row=9, sticky='w')
         self.extension_entry = tk.Entry(self, width=20)
         self.extension_entry['background'] = 'white'
         self.extension_entry.insert(tk.END, self.disc.extension)
-        self.extension_entry.grid(column=1, row=8, sticky='w')
+        self.extension_entry.grid(column=1, row=9, sticky='w')
 
         # Retries
-        tk.Label(self, text='Retries').grid(column=0, row=9, sticky='w')
+        tk.Label(self, text='Retries').grid(column=0, row=10, sticky='w')
         self.retries_entry = tk.Entry(self, width=20)
         self.retries_entry['background'] = 'white'
         self.retries_entry.insert(tk.END, self.disc.retriesDefault)
-        self.retries_entry.grid(column=1, row=9, sticky='w')
+        self.retries_entry.grid(column=1, row=10, sticky='w')
         self.decreaseRetriesButton = tk.Button(self, text='-', command=self.decreaseRetries, width=1)
-        self.decreaseRetriesButton.grid(column=1, row=9, sticky='e')
+        self.decreaseRetriesButton.grid(column=1, row=10, sticky='e')
         self.increaseRetriesButton = tk.Button(self, text='+', command=self.increaseRetries, width=1)
-        self.increaseRetriesButton.grid(column=2, row=9, sticky='w')
+        self.increaseRetriesButton.grid(column=2, row=10, sticky='w')
 
         # Direct disc mode
         tk.Label(self, text='Direct disc mode (ddrescue)').grid(column=0, row=11, sticky='w')
