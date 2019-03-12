@@ -133,14 +133,15 @@ class Disc:
         logging.info('*** OMIMGR EXTRACTION LOG ***')
         logging.info('***************************\n')
         logging.info('*** USER INPUT ***')
+        logging.info('omimgrVersion: ' + config.version)
         logging.info('dirOut: ' + self.dirOut)
         logging.info('omDevice: ' + self.omDevice)
-        logging.info('read command: ' + self.readCommand)
-        logging.info('retries: ' + str(self.retries))
+        logging.info('readCommand: ' + self.readCommand)
+        logging.info('maxRetries: ' + str(self.retries))
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
         logging.info('direct disc mode (ddrescue only): ' + str(self.rescueDirectDiscMode))
-
+    
         ## Acquisition start date/time
         acquisitionStart = shared.generateDateTime(self.timeZone)
 
@@ -168,8 +169,11 @@ class Disc:
         metadata['identifier'] = self.identifier
         metadata['description'] = self.description
         metadata['notes'] = self.notes
-        metadata['tapeimagrVersion'] = config.version
+        metadata['omimgrVersion'] = config.version
         metadata['omDevice'] = self.omDevice
+        metadata['readCommand'] = self.readCommand
+        metadata['maxRetries'] = self.retries
+        metadata['rescueDirectDiscMode'] = str(self.rescueDirectDiscMode)
         metadata['prefix'] = self.prefix
         metadata['extension'] = self.extension
         metadata['acquisitionStart'] = acquisitionStart
