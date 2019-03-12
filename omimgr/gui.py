@@ -65,6 +65,12 @@ class omimgrGUI(tk.Frame):
         self.disc.omDevice = self.omDevice_entry.get().strip()
         rcItems = self.readCommand_entry.get(0, tk.END) # Tuple of all selection items
         rcSel = self.readCommand_entry.curselection() # Tuple with index of selected item
+        # TEST
+        print("rcItems:")
+        print(rcItems)
+        print("rcSel:")
+        print(rcSel)
+        # TEST
         self.disc.readCommand = rcItems[rcSel[0]]
         self.disc.retries = self.retries_entry.get().strip()
         self.disc.prefix = self.prefix_entry.get().strip()
@@ -215,7 +221,13 @@ class omimgrGUI(tk.Frame):
         for item in ["readom", "ddrescue"]:
             self.readCommand_entry.insert(tk.END, item)
         self.readCommand_entry.select_set(0)
+        self.readCommand_entry.event_generate("<<ListboxSelect>>")
         self.readCommand_entry.grid(column=1, row=6, sticky='w')
+        ## TEST
+        rcSel = self.readCommand_entry.curselection()
+        print("rcSel (buildGUI)")
+        print(rcSel)
+        ## TEST
 
         # Prefix
         tk.Label(self, text='Prefix').grid(column=0, row=7, sticky='w')

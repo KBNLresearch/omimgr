@@ -49,6 +49,7 @@ class Disc:
 
         # Miscellaneous attributes
         self.logFile = ''
+        self.imageFile = ''
         self.logFileName = ''
         self.checksumFileName = ''
         self.metadataFileName = ''
@@ -115,6 +116,9 @@ class Disc:
         # Convert rescueDirectDiscMode to Boolean
         self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode)
 
+        # Image file
+        self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
+
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
 
@@ -142,12 +146,13 @@ class Disc:
 
         # Unmount disc
         args = ['umount', self.omDevice]
+        umountStatus, umountOut, umountErr = shared.launchSubProcess(args)
 
         if self.readCommand == "readom":
             args = ['readom']
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
-            args.append('f=' + self.prefix + '.' + self.extension)
+            args.append('f=' + self.imageFile)
 
         readStatus, readOut, readErr = shared.launchSubProcess(args)
 
@@ -167,7 +172,6 @@ class Disc:
         metadata['omDevice'] = self.omDevice
         metadata['prefix'] = self.prefix
         metadata['extension'] = self.extension
-        metadata['fillBlocks'] = self.fillBlocks
         metadata['acquisitionStart'] = acquisitionStart
         metadata['acquisitionEnd'] = acquisitionEnd
         metadata['successFlag'] = self.successFlag
