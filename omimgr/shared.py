@@ -17,7 +17,7 @@ def launchSubProcess(args, writeLog=True):
         # Setting shell=True avoids console window poppong up with pythonw
         # BUT shell=True is not working with argument lists,
         # see https://stackoverflow.com/a/26417712/1209004
-        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False, bufsize=1,  universal_newlines=True)
+        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False, bufsize=1, universal_newlines=True)
         #output, errors = p.communicate()
 
         for lineErr in iter(p.stderr.readline,''):
@@ -26,10 +26,7 @@ def launchSubProcess(args, writeLog=True):
         for lineOut in iter(p.stdout.readline,''):
             logging.info(lineOut.rstrip())
 
-        # Decode to UTF8
-        #outputAsString = output.decode('utf-8')
-        #errorsAsString = errors.decode('utf-8')
-
+        p.wait()
         exitStatus = p.returncode
 
     except Exception:
@@ -53,8 +50,7 @@ def launchSubProcess(args, writeLog=True):
             #logging.error(cmdName + ' stdout:\n' + outputAsString)
             #logging.error(cmdName + ' stderr:\n' + errorsAsString)
 
-    return exitStatus, "bullsh", "bullsh"
-    #return(exitStatus, outputAsString, errorsAsString)
+    return exitStatus
 
 
 def generate_file_sha512(fileIn):

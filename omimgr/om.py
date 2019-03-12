@@ -151,7 +151,7 @@ class Disc:
 
         # Unmount disc
         args = ['umount', self.omDevice]
-        umountStatus, umountOut, umountErr = shared.launchSubProcess(args)
+        shared.launchSubProcess(args)
 
         if self.readCommand == "readom":
             args = ['readom']
@@ -170,7 +170,7 @@ class Disc:
             args.append(self.imageFile)
             args.append(self.mapFile)
 
-        readStatus, readOut, readErr = shared.launchSubProcess(args)
+        shared.launchSubProcess(args)
 
         # Create checksum file
         logging.info('*** Creating checksum file ***')
