@@ -388,6 +388,7 @@ class omimgrGUI(tk.Frame):
         self.st.configure(state='normal')
         self.st.insert(tk.END, msg + '\n', record.levelname)
         self.st.configure(state='disabled')
+
         # Autoscroll to the bottom
         self.st.yview(tk.END)
 

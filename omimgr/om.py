@@ -50,6 +50,7 @@ class Disc:
         # Miscellaneous attributes
         self.logFile = ''
         self.imageFile = ''
+        self.mapFile = ''
         self.logFileName = ''
         self.checksumFileName = ''
         self.metadataFileName = ''
@@ -119,6 +120,9 @@ class Disc:
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
 
+        # Ddrescue map file
+        self.mapFile =  os.path.join(self.dirOut, self.prefix + '.log')
+
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
 
@@ -154,6 +158,17 @@ class Disc:
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
             args.append('f=' + self.imageFile)
+        elif self.readCommand == "ddrescue":
+            args = ['ddrescue']
+            if self.rescueDirectDiscMode:
+                args.append('-d')
+            args.append('-b')
+            args.append('2048')
+            args.append('-r' + str(self.retries))
+            args.append('-v')
+            args.append( self.omDevice)
+            args.append(self.imageFile)
+            args.append(self.mapFile)
 
         readStatus, readOut, readErr = shared.launchSubProcess(args)
 

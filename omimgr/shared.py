@@ -17,18 +17,24 @@ def launchSubProcess(args, writeLog=True):
         # Setting shell=True avoids console window poppong up with pythonw
         # BUT shell=True is not working with argument lists,
         # see https://stackoverflow.com/a/26417712/1209004
-        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False)
-        output, errors = p.communicate()
+        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False, bufsize=1,  universal_newlines=True)
+        #output, errors = p.communicate()
+
+        for lineErr in iter(p.stderr.readline,''):
+            logging.info(lineErr.rstrip())
+
+        for lineOut in iter(p.stdout.readline,''):
+            logging.info(lineOut.rstrip())
 
         # Decode to UTF8
-        outputAsString = output.decode('utf-8')
-        errorsAsString = errors.decode('utf-8')
+        #outputAsString = output.decode('utf-8')
+        #errorsAsString = errors.decode('utf-8')
 
         exitStatus = p.returncode
 
     except Exception:
         # I don't even want to to start thinking how one might end up here ...
-
+        raise
         exitStatus = -99
         outputAsString = ""
         errorsAsString = ""
@@ -40,14 +46,15 @@ def launchSubProcess(args, writeLog=True):
 
         if exitStatus == 0:
             logging.info(cmdName + ' status: ' + str(exitStatus))
-            logging.info(cmdName + ' stdout:\n' + outputAsString)
-            logging.info(cmdName + ' stderr:\n' + errorsAsString)
+            #logging.info(cmdName + ' stdout:\n' + outputAsString)
+            #logging.info(cmdName + ' stderr:\n' + errorsAsString)
         else:
             logging.error(cmdName + ' status: ' + str(exitStatus))
-            logging.error(cmdName + ' stdout:\n' + outputAsString)
-            logging.error(cmdName + ' stderr:\n' + errorsAsString)
+            #logging.error(cmdName + ' stdout:\n' + outputAsString)
+            #logging.error(cmdName + ' stderr:\n' + errorsAsString)
 
-    return(exitStatus, outputAsString, errorsAsString)
+    return exitStatus, "bullsh", "bullsh"
+    #return(exitStatus, outputAsString, errorsAsString)
 
 
 def generate_file_sha512(fileIn):
