@@ -458,17 +458,17 @@ def main():
                     myGUI.logger.removeHandler(handler)
 
                 if myGUI.disc.omDeviceIOError:
-                    # Tape device not accessible
-                    msg = ('Cannot access tape device ' + myGUI.disc.omDevice +
-                           '. Check that device exits, and that tapeimgr is run as root')
+                    # Optical device not accessible
+                    msg = ('Cannot access optical device ' + myGUI.disc.omDevice +
+                           '. Check that device exists.')
                     errorExit(msg)
                 elif myGUI.disc.successFlag:
-                    # Tape extraction completed with no errors
-                    msg = ('Tape processed successfully without errors')
+                    # Imaging completed with no errors
+                    msg = ('Disc processed successfully without errors')
                     tkMessageBox.showinfo("Success", msg)
                 else:
-                    # Tape extraction resulted in errors
-                    msg = ('One or more errors occurred while processing tape, '
+                    # Imaging resulted in errors
+                    msg = ('One or more errors occurred while processing disc, '
                            'check log file for details')
                     tkMessageBox.showwarning("Errors occurred", msg)
 
