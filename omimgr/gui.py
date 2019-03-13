@@ -465,7 +465,7 @@ def main():
                     errorExit(msg)
                 elif myGUI.disc.successFlag:
                     # Imaging completed with no errors
-                    msg = ('Disc processed successfully without errors')
+                    msg = ('Finished processing disc, check output log for status')
                     tkMessageBox.showinfo("Success", msg)
                 else:
                     # Imaging resulted in errors

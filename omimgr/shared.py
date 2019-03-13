@@ -2,55 +2,10 @@
 """Shared functions module"""
 
 import os
-import logging
 import glob
 import hashlib
 import datetime
-import subprocess as sub
 import pytz
-
-def launchSubProcess(args, writeLog=True):
-    """Launch subprocess and return exit code, stdout and stderr"""
-    try:
-        # Execute command line; stdout + stderr redirected to objects
-        # 'output' and 'errors'.
-        # Setting shell=True avoids console window poppong up with pythonw
-        # BUT shell=True is not working with argument lists,
-        # see https://stackoverflow.com/a/26417712/1209004
-        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False, bufsize=1, universal_newlines=True)
-        #output, errors = p.communicate()
-
-        for lineErr in iter(p.stderr.readline,''):
-            logging.info(lineErr.rstrip())
-
-        for lineOut in iter(p.stdout.readline,''):
-            logging.info(lineOut.rstrip())
-
-        p.wait()
-        exitStatus = p.returncode
-
-    except Exception:
-        # I don't even want to to start thinking how one might end up here ...
-        exitStatus = -99
-        outputAsString = ""
-        errorsAsString = ""
-
-    # Logging
-    if writeLog:
-        cmdName = args[0]
-        logging.info('Command: ' + ' '.join(args))
-
-        if exitStatus == 0:
-            logging.info(cmdName + ' status: ' + str(exitStatus))
-            #logging.info(cmdName + ' stdout:\n' + outputAsString)
-            #logging.info(cmdName + ' stderr:\n' + errorsAsString)
-        else:
-            logging.error(cmdName + ' status: ' + str(exitStatus))
-            #logging.error(cmdName + ' stdout:\n' + outputAsString)
-            #logging.error(cmdName + ' stderr:\n' + errorsAsString)
-
-    return exitStatus
-
 
 def generate_file_sha512(fileIn):
     """Generate sha512 hash of file"""

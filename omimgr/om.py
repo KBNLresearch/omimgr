@@ -11,6 +11,7 @@ import logging
 import glob
 import pathlib
 from shutil import which
+from . import wrappers
 from . import config
 from . import shared
 
@@ -151,13 +152,14 @@ class Disc:
 
         # Unmount disc
         args = ['umount', self.omDevice]
-        shared.launchSubProcess(args)
+        wrappers.umount(args)
 
         if self.readCommand == "readom":
             args = ['readom']
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
             args.append('f=' + self.imageFile)
+            readCmdLine, readExitStatus = wrappers.readom(args)
         elif self.readCommand == "ddrescue":
             args = ['ddrescue']
             if self.rescueDirectDiscMode:
@@ -169,8 +171,7 @@ class Disc:
             args.append( self.omDevice)
             args.append(self.imageFile)
             args.append(self.mapFile)
-
-        shared.launchSubProcess(args)
+            readCmdLine, readExitStatus = wrappers.ddrescue(args)
 
         # Create checksum file
         logging.info('*** Creating checksum file ***')
@@ -187,6 +188,7 @@ class Disc:
         metadata['omimgrVersion'] = config.version
         metadata['omDevice'] = self.omDevice
         metadata['readCommand'] = self.readCommand
+        metadata['readCommandLine'] = readCmdLine
         metadata['maxRetries'] = self.retries
         metadata['rescueDirectDiscMode'] = str(self.rescueDirectDiscMode)
         metadata['prefix'] = self.prefix
@@ -210,7 +212,7 @@ class Disc:
         logging.info('Success: ' + str(self.successFlag))
 
         if self.successFlag:
-            logging.info('Disc processed successfully without errors')
+            logging.info('Finished processing disc, check output log for status')
         else:
             logging.error('One or more errors occurred while processing disc, \
             check log file for details')
