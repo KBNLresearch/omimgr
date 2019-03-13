@@ -104,12 +104,12 @@ class omimgrGUI(tk.Frame):
             inputValidateFlag = False
             msg = ('Selected device is not accessible')
             tkMessageBox.showerror("ERROR", msg)
-        
+
         if not self.disc.readomInstalled:
             inputValidateFlag = False
             msg = ('readom not installed')
             tkMessageBox.showerror("ERROR", msg)
-    
+
         if not self.disc.ddrescueInstalled:
             inputValidateFlag = False
             msg = ('readom not installed')
@@ -255,9 +255,13 @@ class omimgrGUI(tk.Frame):
         self.retries_entry['background'] = 'white'
         self.retries_entry.insert(tk.END, self.disc.retriesDefault)
         self.retries_entry.grid(column=1, row=10, sticky='w')
-        self.decreaseRetriesButton = tk.Button(self, text='-', command=self.decreaseRetries, width=1)
+        self.decreaseRetriesButton = tk.Button(self, text='-',
+                                               command=self.decreaseRetries,
+                                               width=1)
         self.decreaseRetriesButton.grid(column=1, row=10, sticky='e')
-        self.increaseRetriesButton = tk.Button(self, text='+', command=self.increaseRetries, width=1)
+        self.increaseRetriesButton = tk.Button(self, text='+',
+                                               command=self.increaseRetries,
+                                               width=1)
         self.increaseRetriesButton.grid(column=2, row=10, sticky='w')
 
         # Direct disc mode

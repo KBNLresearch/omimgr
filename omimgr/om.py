@@ -123,7 +123,7 @@ class Disc:
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
 
         # Ddrescue map file
-        self.mapFile =  os.path.join(self.dirOut, self.prefix + '.log')
+        self.mapFile = os.path.join(self.dirOut, self.prefix + '.log')
 
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
@@ -147,7 +147,7 @@ class Disc:
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
         logging.info('direct disc mode (ddrescue only): ' + str(self.rescueDirectDiscMode))
-    
+
         ## Acquisition start date/time
         acquisitionStart = shared.generateDateTime(self.timeZone)
 
@@ -169,7 +169,7 @@ class Disc:
             args.append('2048')
             args.append('-r' + str(self.retries))
             args.append('-v')
-            args.append( self.omDevice)
+            args.append(self.omDevice)
             args.append(self.imageFile)
             args.append(self.mapFile)
             readCmdLine, readExitStatus, self.readErrorFlag = wrappers.ddrescue(args)

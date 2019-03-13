@@ -168,7 +168,7 @@ def umount(args):
     logging.info('Command: ' + cmdLine)
 
     # Umount returns exit status 1 if device not mounted. This is no reason
-    # for any concern, so don't report this as an error in the log. 
+    # for any concern, so don't report this as an error in the log.
     logging.info(cmdName + ' status: ' + str(exitStatus))
     logging.info(cmdName + ' stdout:\n' + outputAsString)
     logging.info(cmdName + ' stderr:\n' + errorsAsString)
