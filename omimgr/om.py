@@ -58,6 +58,7 @@ class Disc:
         self.finishedFlag = False
         self.omDeviceIOError = False
         self.successFlag = True
+        self.readErrorFlag = False
         self.configSuccess = True
         self.timeZone = ''
         self.defaultDir = ''
@@ -159,7 +160,7 @@ class Disc:
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
             args.append('f=' + self.imageFile)
-            readCmdLine, readExitStatus = wrappers.readom(args)
+            readCmdLine, readExitStatus, self.readErrorFlag = wrappers.readom(args)
         elif self.readCommand == "ddrescue":
             args = ['ddrescue']
             if self.rescueDirectDiscMode:
@@ -171,7 +172,7 @@ class Disc:
             args.append( self.omDevice)
             args.append(self.imageFile)
             args.append(self.mapFile)
-            readCmdLine, readExitStatus = wrappers.ddrescue(args)
+            readCmdLine, readExitStatus, self.readErrorFlag = wrappers.ddrescue(args)
 
         # Create checksum file
         logging.info('*** Creating checksum file ***')
@@ -212,10 +213,14 @@ class Disc:
         logging.info('Success: ' + str(self.successFlag))
 
         if self.successFlag:
-            logging.info('Finished processing disc, check output log for status')
+            if not self.readErrorFlag:
+                logging.info('Disc processed without errors')
+            else:
+                logging.info('One or more errors occurred while processing disc, '
+                             'check log file for details')
         else:
-            logging.error('One or more errors occurred while processing disc, \
-            check log file for details')
+            logging.error('One or more errors occurred while processing disc, '
+                          'check log file for details')
 
         # Set finishedFlag
         self.finishedFlag = True

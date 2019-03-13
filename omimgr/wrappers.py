@@ -8,8 +8,12 @@ import subprocess as sub
 
 def readom(args):
     """readom wapper function"""
+
+    errorFlag = False
+
     try:
-        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False, bufsize=1, universal_newlines=True)
+        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
+                      shell=False, bufsize=1, universal_newlines=True)
 
         # Processing of output adapted from DDRescue-GUI by Hamish McIntyre-Bhatty:
         # https://git.launchpad.net/ddrescue-gui/tree/DDRescue_GUI.py
@@ -31,6 +35,9 @@ def readom(args):
                 tidy_line = line.replace("\n", "").replace("\r", "").replace("\x1b[A", "")
 
                 if tidy_line != "":
+                    # Scan output for any error references
+                    if "error" in tidy_line.lower():
+                        errorFlag = True
                     try:
                         logging.info(tidy_line)
                     except:
@@ -61,16 +68,22 @@ def readom(args):
 
     if exitStatus == 0:
         logging.info(cmdName + ' status: ' + str(exitStatus))
+        logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
     else:
         logging.error(cmdName + ' status: ' + str(exitStatus))
+        logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
 
-    return cmdLine, exitStatus
+    return cmdLine, exitStatus, errorFlag
 
 
 def ddrescue(args):
     """ddrescue wapper function"""
+
+    errorFlag = False
+
     try:
-        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False, bufsize=1, universal_newlines=True)
+        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
+                      shell=False, bufsize=1, universal_newlines=True)
 
         # Processing of output adapted from DDRescue-GUI by Hamish McIntyre-Bhatty:
         # https://git.launchpad.net/ddrescue-gui/tree/DDRescue_GUI.py
@@ -123,10 +136,12 @@ def ddrescue(args):
 
     if exitStatus == 0:
         logging.info(cmdName + ' status: ' + str(exitStatus))
+        logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
     else:
         logging.error(cmdName + ' status: ' + str(exitStatus))
+        logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
 
-    return cmdLine, exitStatus
+    return cmdLine, exitStatus, errorFlag
 
 
 def umount(args):

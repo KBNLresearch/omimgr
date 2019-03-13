@@ -463,9 +463,9 @@ def main():
                     msg = ('Cannot access optical device ' + myGUI.disc.omDevice +
                            '. Check that device exists.')
                     errorExit(msg)
-                elif myGUI.disc.successFlag:
+                elif myGUI.disc.successFlag and not myGUI.disc.readErrorFlag:
                     # Imaging completed with no errors
-                    msg = ('Finished processing disc, check output log for status')
+                    msg = ('Disc processed without errors')
                     tkMessageBox.showinfo("Success", msg)
                 else:
                     # Imaging resulted in errors
