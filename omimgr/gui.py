@@ -81,7 +81,7 @@ class omimgrGUI(tk.Frame):
         ## TEST
         uInput = [self.disc.omDevice, self.disc.readCommand, self.disc.prefix,
                   self.disc.extension, self.disc.retries, self.disc.rescueDirectDiscMode,
-                  self.disc.identifier, self.disc.description, self.disc.notes]
+                  self.disc.identifier, self.disc.description, self.disc.notes, self.disc.dirOut]
         for item in uInput:
             print(item)
         ## TEST
@@ -336,7 +336,7 @@ class omimgrGUI(tk.Frame):
 
     def reset_gui(self):
         """Reset the GUI"""
-        # Create new tape instance
+        # Create new disc instance
         self.disc = Disc()
         # Read configuration
         self.disc.getConfiguration()
@@ -367,6 +367,19 @@ class omimgrGUI(tk.Frame):
         self.notes_entry.delete(1.0, tk.END)
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.rescueDirectDiscMode_entry.variable = self.disc.rescueDirectDiscMode
+        self.start_button.config(state='normal')
+        self.quit_button.config(state='normal')
+
+    def refresh_gui(self, dirOutOld):
+        """Refresh the GUI (keeps previous settings)"""
+        # Create new disc instance
+        self.disc = Disc()
+        self.disc.dirOut = dirOutOld
+        # Logging stuff
+        self.logger = logging.getLogger()
+        # Create a logging handler using a queue
+        self.log_queue = queue.Queue(-1)
+        self.queue_handler = QueueHandler(self.log_queue)
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
@@ -447,6 +460,7 @@ def main():
     myGUI = omimgrGUI(root)
     # This ensures application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
+    retryFlag = False
 
     while True:
         try:
@@ -455,8 +469,6 @@ def main():
             time.sleep(0.1)
             if myGUI.disc.finishedFlag:
                 myGUI.t1.join()
-                #myGUI.logger.removeHandler(myGUI.queue_handler)
-                #myGUI.queue_handler.close()
                 handlers = myGUI.logger.handlers[:]
                 for handler in handlers:
                     handler.close()
@@ -473,12 +485,18 @@ def main():
                     tkMessageBox.showinfo("Success", msg)
                 else:
                     # Imaging resulted in errors
-                    msg = ('One or more errors occurred while processing disc, '
-                           'check log file for details')
-                    tkMessageBox.showwarning("Errors occurred", msg)
+                    msg = ('One or more errors occurred while processing this'
+                           'disc.Try again?')
+                    if tkMessageBox.askyesno("Errors", msg):
+                        retryFlag = True
 
-                # Reset the GUI
-                myGUI.reset_gui()
+                if retryFlag:
+                    # Refresh the GUI, so user can process same disc again
+                    dirOutOld = myGUI.disc.dirOut
+                    myGUI.refresh_gui(dirOutOld)
+                else:
+                    # Reset the GUI
+                    myGUI.reset_gui()
 
         except Exception as e:
             # Unexpected error
