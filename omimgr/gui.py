@@ -377,13 +377,13 @@ class omimgrGUI(tk.Frame):
     def refresh_gui(self, dirOutOld):
         """Refresh the GUI (keeps previous settings)"""
         # Create new disc instance
-        self.disc = Disc()
-        self.disc.dirOut = dirOutOld
+        #self.disc = Disc()
+        #self.disc.dirOut = dirOutOld
         # Logging stuff
-        self.logger = logging.getLogger()
+        #self.logger = logging.getLogger()
         # Create a logging handler using a queue
-        self.log_queue = queue.Queue(-1)
-        self.queue_handler = QueueHandler(self.log_queue)
+        #self.log_queue = queue.Queue(-1)
+        #self.queue_handler = QueueHandler(self.log_queue)
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
@@ -487,17 +487,22 @@ def main():
                     # Imaging completed with no errors
                     msg = ('Disc processed without errors')
                     tkMessageBox.showinfo("Success", msg)
-                else:
+                elif myGUI.disc.readCommand == 'readom':
                     # Imaging resulted in errors
-                    msg = ('One or more errors occurred while processing this'
-                           'disc.Try again?')
+                    msg = ('One or more errors occurred while processing disc\n'
+                           'Try again with ddrescue?')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFlag = True
 
                 if retryFlag:
                     # Refresh the GUI, so user can process same disc again
-                    dirOutOld = myGUI.disc.dirOut
-                    myGUI.refresh_gui(dirOutOld)
+                    myGUI.disc.readErrorFlag = False
+                    myGUI.disc.finishedFlag = False
+                    myGUI.disc.finishedFlag = False
+                    # Set readCommand to ddrescue
+                    myGUI.v.set(2)
+                    myGUI.on_submit()
+                    retryFlag = False
                 else:
                     # Reset the GUI
                     myGUI.reset_gui()
