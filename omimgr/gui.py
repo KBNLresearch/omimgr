@@ -464,7 +464,7 @@ def main():
     myGUI = omimgrGUI(root)
     # This ensures application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
-    retryFlag = False
+    retryFromReadomFlag = False
 
     while True:
         try:
@@ -492,17 +492,18 @@ def main():
                     msg = ('One or more errors occurred while processing disc\n'
                            'Try again with ddrescue?')
                     if tkMessageBox.askyesno("Errors", msg):
-                        retryFlag = True
+                        retryFromReadomFlag = True
 
-                if retryFlag:
-                    # Refresh the GUI, so user can process same disc again
+                if retryFromReadomFlag:
+                    # Reset flags
                     myGUI.disc.readErrorFlag = False
-                    myGUI.disc.finishedFlag = False
                     myGUI.disc.finishedFlag = False
                     # Set readCommand to ddrescue
                     myGUI.v.set(2)
+                    # Delete old image file
+                    os.remove(myGUI.disc.imageFile)
                     myGUI.on_submit()
-                    retryFlag = False
+                    retryFromReadomFlag = False
                 else:
                     # Reset the GUI
                     myGUI.reset_gui()
