@@ -107,12 +107,16 @@ class omimgrGUI(tk.Frame):
 
         if not self.disc.readomInstalled:
             inputValidateFlag = False
-            msg = ('readom not installed')
+            msg = ("readom not installed!\n"
+                   "install with:\n"
+                   "'sudo apt install wodim'")
             tkMessageBox.showerror("ERROR", msg)
 
         if not self.disc.ddrescueInstalled:
             inputValidateFlag = False
-            msg = ('readom not installed')
+            msg = ("ddrescue not installed!\n"
+                   "install with:\n"
+                   "'sudo apt install gddrescue'")
             tkMessageBox.showerror("ERROR", msg)
 
         # Ask confirmation if output files exist already
