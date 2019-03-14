@@ -174,6 +174,9 @@ class Disc:
             args.append(self.mapFile)
             readCmdLine, readExitStatus, self.readErrorFlag = wrappers.ddrescue(args)
 
+        if self.readErrorFlag:
+            self.successFlag = False
+
         # Create checksum file
         logging.info('*** Creating checksum file ***')
         checksumFile = os.path.join(self.dirOut, self.checksumFileName)
@@ -191,7 +194,7 @@ class Disc:
         metadata['readCommand'] = self.readCommand
         metadata['readCommandLine'] = readCmdLine
         metadata['maxRetries'] = self.retries
-        metadata['rescueDirectDiscMode'] = str(self.rescueDirectDiscMode)
+        metadata['rescueDirectDiscMode'] = self.rescueDirectDiscMode
         metadata['prefix'] = self.prefix
         metadata['extension'] = self.extension
         metadata['acquisitionStart'] = acquisitionStart

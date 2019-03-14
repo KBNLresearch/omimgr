@@ -5,6 +5,17 @@ import logging
 import time
 import subprocess as sub
 
+def getReadErrors(rescueLine):
+    """parse ddrescue output line for values of readErrors"""
+    lineItems = rescueLine.split(",")
+
+    for item in lineItems:
+        if "read errors:" in item:
+            reEntry = item.split(":")
+            readErrors = int(reEntry[1].strip())
+
+    return readErrors
+
 
 def readom(args):
     """readom wapper function"""
@@ -80,6 +91,7 @@ def ddrescue(args):
     """ddrescue wapper function"""
 
     errorFlag = False
+    readErrors = 0
 
     try:
         p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
@@ -105,6 +117,10 @@ def ddrescue(args):
                 tidy_line = line.replace("\n", "").replace("\r", "").replace("\x1b[A", "")
 
                 if tidy_line != "":
+
+                    if "read errors:" in tidy_line:
+                        # Parse this line for value of read errors
+                        readErrors = getReadErrors(tidy_line)
                     try:
                         logging.info(tidy_line)
                     except:
@@ -119,6 +135,9 @@ def ddrescue(args):
         # Parse any remaining lines afterwards.
         if line != "":
             tidy_line = line.replace("\n", "").replace("\r", "").replace("\x1b[A", "")
+            if "read errors:" in tidy_line:
+                # Parse this line for value of read errors
+                readErrors = getReadErrors(tidy_line)
             logging.info(tidy_line)
 
         p.wait()
@@ -128,6 +147,9 @@ def ddrescue(args):
         raise
         # I don't even want to to start thinking how one might end up here ...
         exitStatus = -99
+
+    if readErrors != 0:
+        errorFlag = True
 
     # Logging
     cmdName = args[0]

@@ -74,9 +74,8 @@ class omimgrGUI(tk.Frame):
         self.disc.prefix = self.prefix_entry.get().strip()
         self.disc.extension = self.extension_entry.get().strip()
         self.disc.identifier = self.identifier_entry.get().strip()
-        self.disc.description = self.description_entry.get(1.0, tk.END).strip()
+        self.disc.description = self.description_entry.get().strip()
         self.disc.notes = self.notes_entry.get(1.0, tk.END).strip()
-        #self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
         self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
         ## TEST
         uInput = [self.disc.omDevice, self.disc.readCommand, self.disc.prefix,
@@ -119,14 +118,7 @@ class omimgrGUI(tk.Frame):
                    "'sudo apt install gddrescue'")
             tkMessageBox.showerror("ERROR", msg)
 
-        # Ask confirmation if output files exist already
-        outDirConfirmFlag = True
-        if self.disc.outputExistsFlag:
-            msg = ('writing to ' + self.disc.dirOut + ' will overwrite existing files!\n'
-                   'press OK to continue, otherwise press Cancel ')
-            outDirConfirmFlag = tkMessageBox.askokcancel("Overwrite files?", msg)
-
-        if inputValidateFlag and outDirConfirmFlag:
+        if inputValidateFlag:
 
             # Start logger
             successLogger = True
@@ -141,7 +133,19 @@ class omimgrGUI(tk.Frame):
                 successLogger = False
 
             if successLogger:
-                # Disable start and exit buttons
+                # Disable data entry widgets
+                self.outDirButton_entry.config(state='disabled')
+                self.omDevice_entry.config(state='disabled')
+                self.retries_entry.config(state='disabled')
+                self.rescueDirectDiscMode_entry.config(state='disabled')
+                self.prefix_entry.config(state='disabled')
+                self.extension_entry.config(state='disabled')
+                self.rbReadom.config(state='disabled')
+                self.rbRescue.config(state='disabled')
+                self.identifier_entry.config(state='disabled')
+                self.uuidButton.config(state='disabled')
+                self.description_entry.config(state='disabled')
+                self.notes_entry.config(state='disabled')
                 self.start_button.config(state='disabled')
                 self.quit_button.config(state='disabled')
 
@@ -229,15 +233,18 @@ class omimgrGUI(tk.Frame):
 
         tk.Label(self, text='Read command').grid(column=0, row=6, sticky='w')
 
-        rowValue = 6
+        self.rbReadom = tk.Radiobutton(self,
+                                    text='readom',
+                                    variable=self.v,
+                                    value=1)
+        self.rbReadom.grid(column=1, row=6, sticky='w')
 
-        for readCommand in self.readCommands:
-            self.rb = tk.Radiobutton(self,
-                                     text=readCommand[0],
-                                     variable=self.v,
-                                     value=readCommand[1])
-            self.rb.grid(column=1, row=rowValue, sticky='w')
-            rowValue += 1
+        self.rbRescue = tk.Radiobutton(self,
+                                    text='ddrescue',
+                                    variable=self.v,
+                                    value=2)
+        self.rbRescue.grid(column=1, row=7, sticky='w')
+
 
         # Prefix
         tk.Label(self, text='Prefix').grid(column=0, row=8, sticky='w')
@@ -288,7 +295,7 @@ class omimgrGUI(tk.Frame):
 
         # Description entry field
         tk.Label(self, text='Description').grid(column=0, row=14, sticky='w')
-        self.description_entry = tk.Text(self, height=2, width=35)
+        self.description_entry = tk.Entry(self, width=35)
         self.description_entry['background'] = 'white'
         self.description_entry.insert(tk.END, self.disc.description)
         self.description_entry.grid(column=1, row=14, sticky='w', columnspan=1)
@@ -349,6 +356,8 @@ class omimgrGUI(tk.Frame):
             self.disc.dirOut = self.disc.defaultDir
         else:
             self.disc.dirOut = os.path.expanduser("~")
+        # Set readCommand to readom
+        self.v.set(1)
         # Logging stuff
         self.logger = logging.getLogger()
         # Create a logging handler using a queue
@@ -371,19 +380,6 @@ class omimgrGUI(tk.Frame):
         self.notes_entry.delete(1.0, tk.END)
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.rescueDirectDiscMode_entry.variable = self.disc.rescueDirectDiscMode
-        self.start_button.config(state='normal')
-        self.quit_button.config(state='normal')
-
-    def refresh_gui(self, dirOutOld):
-        """Refresh the GUI (keeps previous settings)"""
-        # Create new disc instance
-        #self.disc = Disc()
-        #self.disc.dirOut = dirOutOld
-        # Logging stuff
-        #self.logger = logging.getLogger()
-        # Create a logging handler using a queue
-        #self.log_queue = queue.Queue(-1)
-        #self.queue_handler = QueueHandler(self.log_queue)
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
@@ -465,6 +461,7 @@ def main():
     # This ensures application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
     retryFromReadomFlag = False
+    retryFromRescueFlag = False
 
     while True:
         try:
@@ -489,10 +486,18 @@ def main():
                     tkMessageBox.showinfo("Success", msg)
                 elif myGUI.disc.readCommand == 'readom':
                     # Imaging resulted in errors
-                    msg = ('One or more errors occurred while processing disc\n'
-                           'Try again with ddrescue?')
+                    msg = ('Errors occurred while processing this disc\n'
+                           'Try again with ddrescue? (This will overwrite\n'
+                           'existing image file)')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromReadomFlag = True
+                elif myGUI.disc.readCommand == 'ddrescue':
+                    # Imaging resulted in errors
+                    msg = ('One or more errors occurred while processing disc\n'
+                           'Try another ddrescue pass? (Hint: you may try using\n'
+                           'Direct Disc mode and/or another optical device)')
+                    if tkMessageBox.askyesno("Errors", msg):
+                        retryFromRescueFlag = True
 
                 if retryFromReadomFlag:
                     # Reset flags
@@ -504,6 +509,17 @@ def main():
                     os.remove(myGUI.disc.imageFile)
                     myGUI.on_submit()
                     retryFromReadomFlag = False
+                elif retryFromRescueFlag:
+                    # Reset flags
+                    myGUI.disc.readErrorFlag = False
+                    myGUI.disc.finishedFlag = False
+                    # Enable entry widgets
+                    myGUI.omDevice_entry.config(state='normal')
+                    myGUI.retries_entry.config(state='normal')
+                    myGUI.rescueDirectDiscMode_entry.config(state='normal')
+                    myGUI.start_button.config(state='normal')
+                    myGUI.quit_button.config(state='normal')
+                    retryFromRescueFlag = False
                 else:
                     # Reset the GUI
                     myGUI.reset_gui()
