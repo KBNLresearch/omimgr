@@ -137,6 +137,8 @@ class omimgrGUI(tk.Frame):
                 self.outDirButton_entry.config(state='disabled')
                 self.omDevice_entry.config(state='disabled')
                 self.retries_entry.config(state='disabled')
+                self.decreaseRetriesButton.config(state='disabled')
+                self.increaseRetriesButton.config(state='disabled')
                 self.rescueDirectDiscMode_entry.config(state='disabled')
                 self.prefix_entry.config(state='disabled')
                 self.extension_entry.config(state='disabled')
@@ -516,6 +518,8 @@ def main():
                     # Enable entry widgets
                     myGUI.omDevice_entry.config(state='normal')
                     myGUI.retries_entry.config(state='normal')
+                    myGUI.decreaseRetriesButton.config(state='normal')
+                    myGUI.increaseRetriesButton.config(state='normal')
                     myGUI.rescueDirectDiscMode_entry.config(state='normal')
                     myGUI.start_button.config(state='normal')
                     myGUI.quit_button.config(state='normal')
