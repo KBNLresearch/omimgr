@@ -375,7 +375,7 @@ class omimgrGUI(tk.Frame):
         self.extension_entry.insert(tk.END, self.disc.extension)
         self.identifier_entry.delete(0, tk.END)
         self.identifier_entry.insert(tk.END, self.disc.identifier)
-        self.description_entry.delete(1.0, tk.END)
+        self.description_entry.delete(0, tk.END)
         self.description_entry.insert(tk.END, self.disc.description)
         self.notes_entry.delete(1.0, tk.END)
         self.notes_entry.insert(tk.END, self.disc.notes)
