@@ -134,7 +134,7 @@ class omimgrGUI(tk.Frame):
                     pass
             else:
                 inputValidateFlag = False
-        # If ddrescue is used, deletev old image file, but only if no map file
+        # If ddrescue is used, delete old image file, but only if no map file
         # can be found (which indicates readom output)
         elif self.disc.outputExistsFlag and self.disc.readCommand == 'ddrescue':
             if not os.path.isfile(self.disc.mapFile):
@@ -235,6 +235,7 @@ class omimgrGUI(tk.Frame):
         # Output Directory
         self.outDirButton_entry = tk.Button(self,
                                             text='Select Output Directory',
+                                            underline=0,
                                             command=self.selectOutputDirectory,
                                             width=20)
         self.outDirButton_entry.grid(column=0, row=3, sticky='w')
@@ -372,9 +373,10 @@ class omimgrGUI(tk.Frame):
 
         # Define bindings for keyboard shortcuts: buttons
         self.root.bind_all('<Control-Key-d>', self.selectOutputDirectory)
+        self.root.bind_all('<Control-Key-i>', self.interruptImaging)
         self.root.bind_all('<Control-Key-s>', self.on_submit)
         self.root.bind_all('<Control-Key-e>', self.on_quit)
-
+    
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
 
