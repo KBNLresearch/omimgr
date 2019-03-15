@@ -36,7 +36,6 @@ Then run:
 If all goes well this should result in the following output:
 
     INFO: writing configuration file /etc/omimgr/omimgr.json
-    INFO: creating desktop file /home/johan/Desktop/omimgr.desktop
     INFO: creating desktop file /usr/share/applications/omimgr.desktop
     INFO: omimgr configuration completed successfully!
 
@@ -53,21 +52,18 @@ Then run:
 Result:
 
     INFO: writing configuration file /home/johan/.config/omimgr/omimgr.json
-    INFO: creating desktop file /home/johan/Desktop/omimgr.desktop
     INFO: creating desktop file /home/johan/.local/share/applications/omimgr.desktop
     INFO: omimgr configuration completed successfully!
 
 *Omimgr* is now ready to roll!
 
-In the instructions that follow below, it is assumed that you have a functioning tape device attached to your machine, and that a tape is loaded (i.e. inserted in the drive).
-
 ## GUI operation
 
-You can start *omimgr* from the OS's main menu (in Ubuntu 18.04 the *omimgr* item is located under *System Tools*), or by clicking the *omimgr* shortcut on the desktop. Depending on your distro, you might get an "Untrusted application launcher" warning the first time you activate the shortcut. You can get rid of this by clicking on "Mark as Trusted". On startup the main *omimgr* window appears:
+You can start *omimgr* from the OS's main menu (in Ubuntu 18.04 the *omimgr* item is located under *System Tools*). Depending on your distro, you might get an "Untrusted application launcher" warning the first time you activate the shortcut. You can get rid of this by clicking on "Mark as Trusted". On startup the main *omimgr* window appears:
 
 ![](./img/omimgr-1.png)
 
-Use the *Select Output Directory* button to navigate to an (empty) directory where the extracted files are to be stored. Press the *Start* button to start the extraction. You can monitor the progress of the extraction procedure in the progress window:
+Use the *Select Output Directory* button to navigate to an (empty) directory where the output files are to be stored. Press the *Start* button to start the extraction. You can monitor the progress of the extraction procedure in the progress window:
 
 ![](./img/omimgr-2.png)
 
@@ -97,41 +93,6 @@ If needed you can use the folowing options to customize the behaviour of *omimgr
 |**Description**|A text string that describes the tape (e.g. the title that is written on its inlay card).|
 |**Notes**|Any additional info or notes you want to record with the tape.|
 
-## Command-line operation
-
-It is also possible to invoke *omimgr* with command-line arguments. The general syntax is:
-
-    omimgr [-h] [--version] [--fill] [--device DEVICE]
-                [--blocksize SIZE] [--files FILES] [--prefix PREF]
-                [--extension EXT] [--identifier IDENTIFIER]
-                [--description DESCRIPTION] [--notes NOTES]
-                dirOut
-
-Here `dirOut` is the output directory. So, the command-line equivalent of the first GUI example is:
-
-    omimgr /home/bcadmin/test/
-
-This will extract the contents of the tape to directory */home/bcadmin/test/*, using the default options. Note that for a user install, you may need to provide the full path to *omimgr*, i.e.:
-
-    ~/.local/bin/omimgr /home/bcadmin/test/
-
-### Options
-
-As with the GUI interface you can customize the default behaviour by using one or more of the following optional arguments:
-
-|Argument|Description|
-|:-|:-|
-|`-h, --help`|show help message and exit|
-|`--version, -v`|show program's version number and exit|
-|`--device DEVICE, -d DEVICE`|Non-rewind tape device (default: `/dev/nst0`).|
-|`--blocksize SIZE, -b SIZE`|Initial block size in bytes (must be a multiple of 512). This is used as a starting value for the iterative block size estimation procedure. Block sizes smaller than 4096 are reported to give poor performance (source: [*forensicswiki*](https://www.forensicswiki.org/wiki/Dd)), and this option can be useful to speed up the extraction process in such cases. Note that the user-specified value of `--blocksize` is ignored if the `--fill` option (see below) is activated.|
-|`--files FILES, -s FILES`|Comma-separated list of files to extract. For example, a value of `2,3` will only extract the 2nd and 3rd files from the tape, and skip everything else. By default this field is empty, which extracts all files).|
-|`--prefix PREF, -p PREF`|Output prefix (default: `file`).|
-|`--extension EXT, -e EXT`|Output file extension (default: `dd`).|
-|`--fill, -f`|Fill blocks that give read errors with null bytes. When this option is checked, *omimgr* calls *dd* with the flags `conv=noerror,sync`. The use of these flags is often recommended to ensure a forensic image with no missing/offset bytes in case of read errors (source: [*forensicswiki*](https://www.forensicswiki.org/wiki/Dd)), but when used with a block size that is larger than the actual block size it will generate padding bytes that make the extracted data unreadable. Because of this, any user-specified value of the `--blocksize`setting (see above) is ignored when this option is used. **WARNING: this option may result in malformed output if the actual block size is either smaller than 512 bytes, and/or if the block size is not a multiple of 512 bytes! (I have no idea if this is even possible?).**|
-|`--identifier IDENTIFIER, -i IDENTIFIER`|Unique identifier. You can either enter an existing identifier yourself, or enter special value `@uuid` to generate a [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).|
-|`--description DESCRIPTION, -c DESCRIPTION `|A text string that describes the tape (e.g. the title that is written on its inlay card).|
-|`--notes NOTES, -n NOTES`|Any additional info or notes you want to record with the tape.|
 
 ## Metadata file
 
@@ -199,7 +160,6 @@ The resulting output (shown below for a user install):
 
     INFO: removing configuration file /home/johan/.config/omimgr/omimgr.json
     INFO: removing configuration directory /home/johan/.config/omimgr
-    INFO: removing desktop file /home/johan/Desktop/omimgr.desktop
     INFO: removing desktop file /home/johan/.local/share/applications/omimgr.desktop
     INFO: omimgr configuration completed successfully!
 
@@ -211,20 +171,9 @@ For a user install use this:
 
     pip3 uninstall omimgr
 
-## Testing omimgr witout a tape drive
-
-If you want to test *omimgr* without having access to a physical tape drive, check out [*mhvtl*, the Linux based Virtual Tape Library](https://github.com/markh794/mhvtl) (and also [these rough notes](https://gist.github.com/bitsgalore/f02e37aba6de988c8ae173a1307c73ff) which explain how to install mhvtl as well as its basic usage).
-
-**Note**: based on some limited tests, it seems that rewinding a virtual tape in *mhvtl* with the *mt* command (which is used by *omimgr*) doesn't actually rewind the tape at all! This has the effect that after a tape has been processed by *omimgr*, running *omimgr* again on the same device will cause *mt* to freeze (and *omimgr* with it). A workaround is to unload the tape, and then load it again using something like this:
-
-    mtx -f /dev/sg11 uload 1 0
-    mtx -f /dev/sg11 load 1 0
-
-After this the virtual tape device works normally again.
-
 ## Contributors
 
-Written by Johan van der Knijff. 
+Written by Johan van der Knijff. Some parts of the code that processes ddrescue's and readom's terminal output were adapted from [DDRescue-GUI](https://launchpad.net/ddrescue-gui) by Hamish McIntyre-Bhatty.
 
 ## License
 
