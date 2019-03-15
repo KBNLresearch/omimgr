@@ -325,7 +325,7 @@ class omimgrGUI(tk.Frame):
 
         # Identifier entry field
         tk.Label(self, text='Identifier').grid(column=0, row=13, sticky='w')
-        self.identifier_entry = tk.Entry(self, width=20)
+        self.identifier_entry = tk.Entry(self, width=35)
         self.identifier_entry['background'] = 'white'
         self.identifier_entry.insert(tk.END, self.disc.identifier)
         self.identifier_entry.grid(column=1, row=13, sticky='w')
@@ -334,14 +334,14 @@ class omimgrGUI(tk.Frame):
 
         # Description entry field
         tk.Label(self, text='Description').grid(column=0, row=14, sticky='w')
-        self.description_entry = tk.Entry(self, width=35)
+        self.description_entry = tk.Entry(self, width=45)
         self.description_entry['background'] = 'white'
         self.description_entry.insert(tk.END, self.disc.description)
         self.description_entry.grid(column=1, row=14, sticky='w', columnspan=1)
 
         # Notes entry field
         tk.Label(self, text='Notes').grid(column=0, row=15, sticky='w')
-        self.notes_entry = tk.Text(self, height=6, width=35)
+        self.notes_entry = tk.Text(self, height=6, width=45)
         self.notes_entry['background'] = 'white'
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.notes_entry.grid(column=1, row=15, sticky='w', columnspan=1)
