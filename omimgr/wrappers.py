@@ -23,6 +23,7 @@ def readom(args):
     """readom wapper function"""
 
     errorFlag = False
+    interruptedFlag = False
 
     try:
         p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
@@ -102,6 +103,7 @@ def ddrescue(args):
     """ddrescue wapper function"""
 
     errorFlag = False
+    interruptedFlag = False
     readErrors = 0
 
     try:

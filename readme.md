@@ -57,7 +57,7 @@ Result:
 
 *Omimgr* is now ready to roll!
 
-## Operation
+## Basic operation
 
 You can start *omimgr* from the OS's main menu (in Ubuntu 18.04 the *omimgr* item is located under *System Tools*). Depending on your distro, you might get an "Untrusted application launcher" warning the first time you activate the shortcut. You can get rid of this by clicking on "Mark as Trusted". On startup the main *omimgr* window appears:
 
@@ -91,22 +91,15 @@ If the extraction finished without any errors, the output directory now contains
 
 Here, **file000001.dd** through **file000003.dd** are the extracted files; **checksums.sha512** contains the SHA512 checksums of the extracted files, **metadata.json** contains some basic metadata and **omimgr.log** is the log file.
 
-### Options
+If *readom*'s attempt to read the disc resulted in any errors, *omimgr* prompts the user to try again with *ddrescue*:
 
-If needed you can use the folowing options to customize the behaviour of *omimgr*:
+![](./img/errors-readom.png)
 
-|Option|Description|
-|:-|:-|
-|**Tape Device**|Non-rewind tape device (default: `/dev/nst0`).|
-|**Initial Block Size**|Initial block size in bytes (must be a multiple of 512). This is used as a starting value for the iterative block size estimation procedure. Block sizes smaller than 4096 are reported to give poor performance (source: [*forensicswiki*](https://www.forensicswiki.org/wiki/Dd)), and this option can be useful to speed up the extraction process in such cases. Note that the user-specified value of **Initial Block Size** is ignored if the **Fill failed blocks** option (see below) is activated.|
-|**Files**|Comma-separated list of files to extract. For example, a value of `2,3` will only extract the 2nd and 3rd files from the tape, and skip everything else. By default this field is empty, which extracts all files).|
-|**Prefix**|Output prefix (default: `file`).|
-|**Extension**|Output file extension (default: `dd`).|
-|**Fill failed blocks**|Fill blocks that give read errors with null bytes. When this option is checked, *omimgr* calls *dd* with the flags `conv=noerror,sync`. The use of these flags is often recommended to ensure a forensic image with no missing/offset bytes in case of read errors (source: [*forensicswiki*](https://www.forensicswiki.org/wiki/Dd)), but when used with a block size that is larger than the actual block size it will generate padding bytes that make the extracted data unreadable. Because of this, any user-specified value of  the **Initial Block Size** setting (see above) is ignored when this option is used. **WARNING: this option may result in malformed output if the actual block size is either smaller than 512 bytes, and/or if the block size is not a multiple of 512 bytes! (I have no idea if this is even possible?).**|
-|**Identifier**|Unique identifier. You can either enter an existing identifier yourself, or press the *UUID* button to generate a [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).|
-|**Description**|A text string that describes the tape (e.g. the title that is written on its inlay card).|
-|**Notes**|Any additional info or notes you want to record with the tape.|
+After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more addition rounds with *ddrescue*, where the user can activate *Direct Disc* mode, or select another optical drive:
 
+![](./img/error-ddrescue.png)
+
+Importantly, *omimgr* does not delete the existing disc image in this case, but it will update it with any additional data that are read for each round.
 
 ## Metadata file
 
