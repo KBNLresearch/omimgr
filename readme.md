@@ -57,17 +57,31 @@ Result:
 
 *Omimgr* is now ready to roll!
 
-## GUI operation
+## Operation
 
 You can start *omimgr* from the OS's main menu (in Ubuntu 18.04 the *omimgr* item is located under *System Tools*). Depending on your distro, you might get an "Untrusted application launcher" warning the first time you activate the shortcut. You can get rid of this by clicking on "Mark as Trusted". On startup the main *omimgr* window appears:
 
 ![](./img/omimgr-1.png)
 
-Use the *Select Output Directory* button to navigate to an (empty) directory where the output files are to be stored. Press the *Start* button to start the extraction. You can monitor the progress of the extraction procedure in the progress window:
+Use the *Select Output Directory* button to navigate to an (empty) directory where the output files are to be stored. The interface allows you to specify the following options:
+
+|Option|Description|
+|:-|:-|
+|**Optical Device**|The optical devices that is used (default: `/dev/nst0`).|
+|**Read command**|The command that is used to read the disc (default: `readom`).|
+|**Prefix**|Output prefix (default: `disc`).|
+|**Extension**|Output file extension (default: `iso`).|
+|**Retries**|Maximum number of retries (default: `4`).|
+|**Direct disc mode**|Check this option to read a disc in direct disc mode (setting only has effect with *ddrescue*) (disabled by default).|
+|**Identifier**|Unique identifier. You can either enter an existing identifier yourself, or press the *UUID* button to generate a [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).|
+|**Description**|A text string that describes the tape (e.g. the title that is written on its inlay card).|
+|**Notes**|Any additional info or notes you want to record with the disc.|
+
+Press the *Start* button to start imaging a disc. You can monitor the progress of the extraction procedure in the progress window:
 
 ![](./img/omimgr-2.png)
 
-Note that the screen output is also written to a log file in the output directory. A prompt appears when the extraction is finished:
+Note that the screen output is also written to a log file in the output directory. A prompt appears when the imaging is finished:
 
 ![](./img/omimgr-success.png)
 

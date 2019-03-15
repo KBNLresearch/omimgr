@@ -54,7 +54,7 @@ def writeConfigFile(configRootDir, removeFlag):
     configSettings['logFileName'] = 'omimgr.log'
     configSettings['metadataFileName'] = 'metadata.json'
     configSettings['omDevice'] = '/dev/sr0'
-    configSettings['prefix'] = 'file'
+    configSettings['prefix'] = 'disc'
     configSettings['extension'] = 'iso'
     configSettings['rescueDirectDiscMode'] = 'False'
     configSettings['readCommand'] = 'readom'
