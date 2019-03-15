@@ -85,63 +85,71 @@ Note that the screen output is also written to a log file in the output director
 
 ![](./img/omimgr-success.png)
 
-If the extraction finished without any errors, the output directory now contains the following files:
+If the imaging finished without any errors, the output directory now contains the following files:
 
 ![](./img/omimgr-files.png)
 
-Here, **file000001.dd** through **file000003.dd** are the extracted files; **checksums.sha512** contains the SHA512 checksums of the extracted files, **metadata.json** contains some basic metadata and **omimgr.log** is the log file.
+Here, **handbook.iso** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **omimgr.log** is the log file.
 
 If *readom*'s attempt to read the disc resulted in any errors, *omimgr* prompts the user to try again with *ddrescue*:
 
 ![](./img/errors-readom.png)
 
-After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more addition rounds with *ddrescue*:
+After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more addition passes with *ddrescue*:
 
 ![](./img/error-ddrescue.png)
 
 After clicking *Yes*, you can activate *Direct Disc* mode, or select another optical drive. Press the *Start* button again to start reading the disc. Importantly, *omimgr* does not delete the existing disc image in this case, but it will update it with any additional data that can be rescued from the disc.
+
+## Suggested workflow
+
+In general *readom* is the preferred tool to read a CD-ROM or DVD. However, *readom* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the disc with *readom*. If this results in any errors, try *ddrescue*. It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *omimgr*'s interface). The results can often be further improved by running multiple *ddrescue* passes with different optical devices (e.g. a few different external USB drives).
+
+## Interrupting readom or ddrescue
+
+Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for discs that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. If you re-run *omimgr* with *ddrescue* on an image that was previously interrupted, it will simply pick up on where the interrupted run stopped. 
 
 ## Metadata file
 
 The file *metadata.json* contains metadata in JSON format. Below is an example:
 
     {
-        "acquisitionEnd": "2019-01-21T13:26:38.813304+01:00",
-        "acquisitionStart": "2019-01-21T13:25:53.570770+01:00",
+        "acquisitionEnd": "2019-03-15T19:03:49.332433+01:00",
+        "acquisitionStart": "2019-03-15T19:03:39.979201+01:00",
         "checksumType": "SHA-512",
         "checksums": {
-            "file000001.dd": "e58279519cd394870f7d39fe59d722bf85c64fb95a9b4c8a893fde0a606f5e270529d17d0598d9e703f9b259a2355c91aaa3721249a64982e580f2f18e6e52f5",
-            "file000002.dd": "19f200700afeab90d45d3beec0cdaf5290ca517574b9049feee80d1257c5d11677d9ecd101c31e30b02d58b4d84c8cac0ea7326d10342d1d7ea4ce40dde663ca",
-            "file000003.dd": "9f4f5ea7cc3639c07ca88b4dcda9b976d2802d229a26415d960962d4fdc2d920ea1ce554343dfc5f22c3c616cad3977e24ddf33c86417dc0112a8560e2f1e75f"
+            "handbook.iso": "20eb93d8d0fa7fe24bd4debba6a0f1556c09a1b1c3a753bbf0d39445e72c3569e69e813c845629e1165ce57aa6d19ccb2b1a9df1a88fea9e7e464f6893fc7d02"
         },
-        "description": "Test tape October 25 2018",
-        "extension": "dd",
-        "files": "",
-        "fillBlocks": false,
-        "identifier": "2d257dec-1d77-11e9-9594-2c4138b5272c",
-        "initBlockSize": 512,
-        "notes": "This tape only contains some old rubbish. Created specifically for testing omimgr.",
-        "prefix": "file",
-        "successFlag": true,
-        "tapeDevice": "/dev/nst0",
-        "tapeimagrVersion": "0.4.0b1"
+        "description": "Preservation Management of Digital Materials",
+        "extension": "iso",
+        "identifier": "6f816238-474c-11e9-9105-dc4a3e413173",
+        "interruptedFlag": false,
+        "maxRetries": "4",
+        "notes": "",
+        "omDevice": "/dev/sr1",
+        "omimgrVersion": "0.1.0",
+        "prefix": "handbook",
+        "readCommand": "readom",
+        "readCommandLine": "readom retries=4 dev=/dev/sr1 f=/home/johan/test/handbook.iso",
+        "rescueDirectDiscMode": false,
+        "successFlag": true
     }
 
 ## Configuration file
 
-*Omimgr*'s internal settings (default values for output file names, tape device, etc.) are defined in a configuration file in Json format. For a global installation it is located at */etc/omimgr/omimgr.json*; for a user install it can be found at *~/.config/omimgr/omimgr.json*. The default configuration is show below:
+*Omimgr*'s internal settings (default values for output file names, the optical device, etc.) are defined in a configuration file in Json format. For a global installation it is located at */etc/omimgr/omimgr.json*; for a user install it can be found at *~/.config/omimgr/omimgr.json*. The default configuration is show below:
 
     {
         "checksumFileName": "checksums.sha512",
         "defaultDir": "",
-        "extension": "dd",
-        "files": "",
-        "fillBlocks": "False",
-        "initBlockSize": "512",
+        "extension": "iso",
         "logFileName": "omimgr.log",
         "metadataFileName": "metadata.json",
-        "prefix": "file",
-        "tapeDevice": "/dev/nst0",
+        "omDevice": "/dev/sr0",
+        "prefix": "disc",
+        "readCommand": "readom",
+        "rescueDirectDiscMode": "False",
+        "retries": "4",
         "timeZone": "Europe/Amsterdam"
     }
 
@@ -151,7 +159,7 @@ You can change *omimgr*'s default settings by editing this file. Most of the abo
 
 - **timeZone**: time zone string that is used to correctly format the *acquisitionStart* and *acquisitionEnd* date/time strings. You can adapt it to your own location by using the *TZ database name* from [this list of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
-Note that it is *not* recommended to change the value of *initBlockSize*, as it may result in unexpected behaviour. If you accidentally messed up the configuration file, you can always restore the original one by running the *omimgr-config* tool again.
+If you accidentally messed up the configuration file, you can always restore the original one by running the *omimgr-config* tool again.
 
 ## Uninstalling omimgr
 
