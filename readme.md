@@ -95,11 +95,11 @@ If *readom*'s attempt to read the disc resulted in any errors, *omimgr* prompts 
 
 ![](./img/errors-readom.png)
 
-After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more addition rounds with *ddrescue*, where the user can activate *Direct Disc* mode, or select another optical drive:
+After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more addition rounds with *ddrescue*:
 
 ![](./img/error-ddrescue.png)
 
-Importantly, *omimgr* does not delete the existing disc image in this case, but it will update it with any additional data that are read for each round.
+After clicking *Yes*, you can activate *Direct Disc* mode, or select another optical drive. Press the *Start* button again to start reading the disc. Importantly, *omimgr* does not delete the existing disc image in this case, but it will update it with any additional data that can be rescued from the disc.
 
 ## Metadata file
 
