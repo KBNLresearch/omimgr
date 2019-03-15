@@ -95,7 +95,7 @@ If *readom*'s attempt to read the disc resulted in any errors, *omimgr* prompts 
 
 ![](./img/errors-readom.png)
 
-After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more addition passes with *ddrescue*:
+After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more additional passes with *ddrescue*:
 
 ![](./img/error-ddrescue.png)
 
