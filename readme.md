@@ -1,20 +1,11 @@
 # omimgr
 
-**Omimgr** is a software application that sequentially reads all files from a data tape. After the extraction is done it also generates a checksum file with SHA-512 hashes of the extracted files. *Omimgr* is completely format-agnostic: it only extracts the raw byte streams. It is up to the user to figure out the format of the extracted files (e.g. a TAR archive), and how to further process or open them.
+**Omimgr** provides a simple GUI-based workflow for making ISO images from optical media (CD-ROMs and DVDs). It wraps around the *readom* (part of [*Cdrkit*](https://en.wikipedia.org/wiki/Cdrkit)) and [*ddrescue*](https://linux.die.net/man/1/ddrescue) tools. After the imaging is done it also generates a checksum file with SHA-512 hashes of the extracted files. 
 
-In short, *omimgr* tries to read sequential files from a tape until its logical end is reached. For each successive file, it automatically determines its block size using an iterative procedure.
-
-Internally *omimgr* wraps around the Linux [*dd*](http://manpages.ubuntu.com/manpages/bionic/man1/dd.1.html) and [*mt*](http://manpages.ubuntu.com/manpages/bionic/man1/mt.1.html) tools. 
-
-## Warnings
-
-At this stage *omimgr* has only had limited testing with a small number of DDS-1 and DLT-IV tapes. Use at your own risk, and please [report any unexpected behaviour using the issue tracker](https://github.com/KBNLresearch/omimgr/issues).
-
-For now *omimgr* can only read tapes that were written in fixed block mode; tapes written in variable block mode may result in unexpected behaviour (if ). Support of variable block mode [may be added to a future release](https://github.com/KBNLresearch/omimgr/issues/28). Note that older tapes were most likely written in fixed block mode, as variable block mode is typically only supported by more recent tape drives.
 
 ## System requirements
 
-*Omimgr* is only available for Linux (but you would probably have a hard time setting up a tape drive on Windows to begin with). So far it has been tested with Ubuntu 18.04 LTS (Bionic) and Linux Mint 18.3, which is based on Ubuntu 16.04 (Xenial). In addition it has the following dependencies (many distros have most or all of these installed by default):
+*Omimgr* is currently only available for Linux. So far it has been tested with Ubuntu 18.04 LTS (Bionic) and Linux Mint 18.3, which is based on Ubuntu 16.04 (Xenial). In addition it has the following dependencies:
 
 - **Python 3.2 or more recent** (Python 2.x is not supported)
 
@@ -31,14 +22,6 @@ For now *omimgr* can only read tapes that were written in fixed block mode; tape
         sudo apt install gddrescue
 
 ## Installation
-
-### Preparation: add default user to tape group
-
-By default, Linux requires special permissions to access tape devices. So before proceeding any further, use the command below (replacing `$USER` with the name of the user who will be using omimgr):
-
-    sudo adduser $USER tape
-
-The user is now added to the 'tape' [system group](https://wiki.debian.org/SystemGroups). Now log out and then log in again for the changes to take effect.
 
 ### Global install
 

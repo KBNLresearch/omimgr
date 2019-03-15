@@ -90,7 +90,6 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
         msg = 'cannot find icon file'
         errorExit(msg)
 
-    fDesktop = os.path.join(desktopDir, 'omimgr.desktop')
     fApplications = os.path.join(applicationsDir, 'omimgr.desktop')
 
     # List of desktop file lines
@@ -105,24 +104,8 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
     desktopList.append('Terminal=false')
     desktopList.append('Categories=Utility;System;GTK')
 
-    # Write desktop file to Desktop
+    # Write desktop file to applications directory
     if not removeFlag:
-        try:
-            infoMessage('creating desktop file ' + fDesktop)
-            with io.open(fDesktop, 'w', encoding='utf-8') as fD:
-                for line in desktopList:
-                    fD.write(line + '\n')
-            # Change owner to user if script is executed as root
-            try:
-                os.chown(fDesktop, int(sudoUID), int(sudoGID))
-            except TypeError:
-                # Script not executed as root
-                pass
-        except:
-            msg = 'Failed to create ' + fDesktop
-            errorExit(msg)
-
-        # Write desktop file to applications directory
         try:
             infoMessage('creating desktop file ' + fApplications)
             with io.open(fApplications, 'w', encoding='utf-8') as fA:
@@ -132,9 +115,6 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
             msg = 'Failed to create ' + fApplications
             errorExit(msg)
     else:
-        if os.path.isfile(fDesktop):
-            infoMessage('removing desktop file ' + fDesktop)
-            os.remove(fDesktop)
         if os.path.isfile(fApplications):
             infoMessage('removing desktop file ' + fApplications)
             os.remove(fApplications)
@@ -145,7 +125,6 @@ def main():
     - configuration directory omimgr in ~/.config/ or /etc/
     - configuration file in configuration directory
     - desktop file in  ~/.local/share/applications/ or /usr/share/applications
-    - desktop file in ~/Desktop
     If the --remove / -r switch is given the above items
     are removed (if they exist)
     """
