@@ -14,6 +14,7 @@ import threading
 import logging
 import queue
 import uuid
+import _thread as thread
 import tkinter as tk
 from tkinter import filedialog as tkFileDialog
 from tkinter import scrolledtext as ScrolledText
@@ -182,6 +183,10 @@ class omimgrGUI(tk.Frame):
         dirInit = self.disc.dirOut
         self.disc.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
         self.outDirLabel['text'] = self.disc.dirOut
+    
+    def interruptImaging(self, event=None):
+        """Interrupt imaging process"""
+        config.interruptFlag = True
 
     def decreaseRetries(self):
         """Decrease value of retries"""
@@ -330,29 +335,36 @@ class omimgrGUI(tk.Frame):
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.notes_entry.grid(column=1, row=15, sticky='w', columnspan=1)
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=16, columnspan=4, sticky='ew')
+        # Interrupt button
+        self.interruptButton_entry = tk.Button(self,
+                                            text='Interrupt',
+                                            command=self.interruptImaging,
+                                            width=20)
+        self.interruptButton_entry.grid(column=1, row=16, sticky='w')
+
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=17, columnspan=4, sticky='ew')
 
         self.start_button = tk.Button(self,
                                       text='Start',
                                       width=10,
                                       underline=0,
                                       command=self.on_submit)
-        self.start_button.grid(column=1, row=17, sticky='w')
+        self.start_button.grid(column=1, row=18, sticky='w')
 
         self.quit_button = tk.Button(self,
                                      text='Exit',
                                      width=10,
                                      underline=0,
                                      command=self.on_quit)
-        self.quit_button.grid(column=1, row=17, sticky='e')
+        self.quit_button.grid(column=1, row=18, sticky='e')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=18, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=19, columnspan=4, sticky='ew')
 
         # Add ScrolledText widget to display logging info
         self.st = ScrolledText.ScrolledText(self, state='disabled', height=15)
         self.st.configure(font='TkFixedFont')
         self.st['background'] = 'white'
-        self.st.grid(column=0, row=19, sticky='ew', columnspan=4)
+        self.st.grid(column=0, row=20, sticky='ew', columnspan=4)
 
         # Define bindings for keyboard shortcuts: buttons
         self.root.bind_all('<Control-Key-d>', self.selectOutputDirectory)

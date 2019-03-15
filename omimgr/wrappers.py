@@ -3,7 +3,9 @@
 
 import logging
 import time
+import signal
 import subprocess as sub
+from . import config
 
 def getReadErrors(rescueLine):
     """parse ddrescue output line for values of readErrors"""
@@ -56,7 +58,7 @@ def readom(args):
                         # Handle unexpected errors.
                         logging.warning("Error parsing readom output!")
 
-                #Reset line.
+                # Reset line.
                 line = ""
 
         # Parse any remaining lines afterwards.
@@ -129,8 +131,16 @@ def ddrescue(args):
                         # ddrescue v1.22+
                         logging.warning("Error parsing ddrescue output!")
 
-                #Reset line.
+                # Reset line.
                 line = ""
+
+                # Interrupt ddrescue if config.interruptFlag is True
+                if config.interruptFlag:
+                    logging.info('*** user interrupted ddrescue ***')
+                    p.send_signal(signal.SIGINT)
+                    # Reset interruptFlag to avoid the above commands to be issued numerous
+                    # times while waiting
+                    config.interruptFlag = False
 
         # Parse any remaining lines afterwards.
         if line != "":

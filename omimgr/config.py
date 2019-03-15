@@ -2,3 +2,4 @@
 """Shared configuration constants"""
 
 version = ''
+interruptFlag = False
