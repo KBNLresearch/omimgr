@@ -118,6 +118,27 @@ class omimgrGUI(tk.Frame):
                    "'sudo apt install gddrescue'")
             tkMessageBox.showerror("ERROR", msg)
 
+        # Ask confirmation if readom is used on dir with existing files
+        outDirConfirmFlag = True
+        if self.disc.outputExistsFlag and self.disc.readCommand == 'readom':
+            msg = ('writing to ' + self.disc.dirOut + ' will overwrite existing files!\n'
+                   'press OK to continue, otherwise press Cancel')
+            outDirConfirmFlag = tkMessageBox.askokcancel("Overwrite files?", msg)
+            if outDirConfirmFlag:
+                # Delete old image file (and map file, if it exists)
+                os.remove(self.disc.imageFile)
+                try:
+                    os.remove(self.disc.mapFile)
+                except OSError:
+                    pass
+            else:
+                inputValidateFlag = False
+        # If ddrescue is used, deletev old image file, but only if no map file
+        # can be found (which indicates readom output)
+        elif self.disc.outputExistsFlag and self.disc.readCommand == 'ddrescue':
+            if not os.path.isfile(self.disc.mapFile):
+                os.remove(self.disc.imageFile)
+
         if inputValidateFlag:
 
             # Start logger
@@ -365,6 +386,23 @@ class omimgrGUI(tk.Frame):
         # Create a logging handler using a queue
         self.log_queue = queue.Queue(-1)
         self.queue_handler = QueueHandler(self.log_queue)
+        # Enable entry widgets
+        self.outDirButton_entry.config(state='normal')
+        self.omDevice_entry.config(state='normal')
+        self.retries_entry.config(state='normal')
+        self.decreaseRetriesButton.config(state='normal')
+        self.increaseRetriesButton.config(state='normal')
+        self.rescueDirectDiscMode_entry.config(state='normal')
+        self.prefix_entry.config(state='normal')
+        self.extension_entry.config(state='normal')
+        self.rbReadom.config(state='normal')
+        self.rbRescue.config(state='normal')
+        self.identifier_entry.config(state='normal')
+        self.uuidButton.config(state='normal')
+        self.description_entry.config(state='normal')
+        self.notes_entry.config(state='normal')
+        self.start_button.config(state='normal')
+        self.quit_button.config(state='normal')
         # Reset all entry widgets
         self.outDirLabel['text'] = self.disc.dirOut
         self.omDevice_entry.delete(0, tk.END)
@@ -507,8 +545,6 @@ def main():
                     myGUI.disc.finishedFlag = False
                     # Set readCommand to ddrescue
                     myGUI.v.set(2)
-                    # Delete old image file
-                    os.remove(myGUI.disc.imageFile)
                     myGUI.on_submit()
                     retryFromReadomFlag = False
                 elif retryFromRescueFlag:
