@@ -61,6 +61,15 @@ def readom(args):
                 # Reset line.
                 line = ""
 
+                # Interrupt readom if config.interruptFlag is True
+                if config.interruptFlag:
+                    interruptedFlag = True
+                    logging.warning('*** readom execution interrupted by user ***')
+                    p.send_signal(signal.SIGINT)
+                    # Reset interruptFlag to avoid the above commands to be issued numerous
+                    # times while waiting
+                    config.interruptFlag = False
+
         # Parse any remaining lines afterwards.
         if line != "":
             tidy_line = line.replace("\n", "").replace("\r", "").replace("\x1b[A", "")
@@ -86,7 +95,7 @@ def readom(args):
         logging.error(cmdName + ' status: ' + str(exitStatus))
         logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
 
-    return cmdLine, exitStatus, errorFlag
+    return cmdLine, exitStatus, errorFlag, interruptedFlag
 
 
 def ddrescue(args):
@@ -136,7 +145,8 @@ def ddrescue(args):
 
                 # Interrupt ddrescue if config.interruptFlag is True
                 if config.interruptFlag:
-                    logging.info('*** user interrupted ddrescue ***')
+                    interruptedFlag = True
+                    logging.warning('*** ddrescue execution interrupted by user ***')
                     p.send_signal(signal.SIGINT)
                     # Reset interruptFlag to avoid the above commands to be issued numerous
                     # times while waiting
@@ -173,7 +183,7 @@ def ddrescue(args):
         logging.error(cmdName + ' status: ' + str(exitStatus))
         logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
 
-    return cmdLine, exitStatus, errorFlag
+    return cmdLine, exitStatus, errorFlag, interruptedFlag
 
 
 def umount(args):

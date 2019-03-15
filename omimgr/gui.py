@@ -155,6 +155,8 @@ class omimgrGUI(tk.Frame):
                 successLogger = False
 
             if successLogger:
+                # Enable interrupt button
+                self.interrupt_button.config(state='normal')
                 # Disable data entry widgets
                 self.outDirButton_entry.config(state='disabled')
                 self.omDevice_entry.config(state='disabled')
@@ -187,6 +189,7 @@ class omimgrGUI(tk.Frame):
     def interruptImaging(self, event=None):
         """Interrupt imaging process"""
         config.interruptFlag = True
+        self.interrupt_button.configure(state='disabled')
 
     def decreaseRetries(self):
         """Decrease value of retries"""
@@ -222,10 +225,10 @@ class omimgrGUI(tk.Frame):
         self.root.title('omimgr v.' + config.version)
         self.root.option_add('*tearOff', 'FALSE')
         self.grid(column=0, row=0, sticky='w')
-        self.grid_columnconfigure(0, weight=0, pad=0)
-        self.grid_columnconfigure(1, weight=0, pad=0)
-        self.grid_columnconfigure(2, weight=0, pad=0)
-        self.grid_columnconfigure(3, weight=0, pad=0)
+        self.grid_columnconfigure(0, weight=1, pad=0)
+        self.grid_columnconfigure(1, weight=1, pad=0)
+        self.grid_columnconfigure(2, weight=1, pad=0)
+        self.grid_columnconfigure(3, weight=1, pad=0)
 
         # Entry elements
         ttk.Separator(self, orient='horizontal').grid(column=0, row=0, columnspan=4, sticky='ew')
@@ -247,6 +250,14 @@ class omimgrGUI(tk.Frame):
         self.omDevice_entry['background'] = 'white'
         self.omDevice_entry.insert(tk.END, self.disc.omDevice)
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
+
+        # Interrupt button (disabled on startup)
+        self.interrupt_button = tk.Button(self,
+                                          text='Interrupt',
+                                          command=self.interruptImaging,
+                                          width=8)
+        self.interrupt_button.grid(column=2, row=5, sticky='e')
+        self.interrupt_button.config(state='disabled')
 
         # Read command (readom or ddrescue)
         self.v = tk.IntVar()
@@ -335,13 +346,6 @@ class omimgrGUI(tk.Frame):
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.notes_entry.grid(column=1, row=15, sticky='w', columnspan=1)
 
-        # Interrupt button
-        self.interruptButton_entry = tk.Button(self,
-                                            text='Interrupt',
-                                            command=self.interruptImaging,
-                                            width=20)
-        self.interruptButton_entry.grid(column=1, row=16, sticky='w')
-
         ttk.Separator(self, orient='horizontal').grid(column=0, row=17, columnspan=4, sticky='ew')
 
         self.start_button = tk.Button(self,
@@ -398,6 +402,8 @@ class omimgrGUI(tk.Frame):
         # Create a logging handler using a queue
         self.log_queue = queue.Queue(-1)
         self.queue_handler = QueueHandler(self.log_queue)
+        # Disable interrupt button
+        self.interrupt_button.config(state='disabled')
         # Enable entry widgets
         self.outDirButton_entry.config(state='normal')
         self.omDevice_entry.config(state='normal')

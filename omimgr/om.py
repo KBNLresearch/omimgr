@@ -58,6 +58,7 @@ class Disc:
         self.finishedFlag = False
         self.omDeviceIOError = False
         self.successFlag = True
+        self.interruptedFlag = False
         self.readErrorFlag = False
         self.configSuccess = True
         self.timeZone = ''
@@ -160,7 +161,7 @@ class Disc:
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
             args.append('f=' + self.imageFile)
-            readCmdLine, readExitStatus, self.readErrorFlag = wrappers.readom(args)
+            readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.readom(args)
         elif self.readCommand == "ddrescue":
             args = ['ddrescue']
             if self.rescueDirectDiscMode:
@@ -172,9 +173,9 @@ class Disc:
             args.append(self.omDevice)
             args.append(self.imageFile)
             args.append(self.mapFile)
-            readCmdLine, readExitStatus, self.readErrorFlag = wrappers.ddrescue(args)
+            readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.ddrescue(args)
 
-        if self.readErrorFlag:
+        if self.readErrorFlag or self.interruptedFlag:
             self.successFlag = False
 
         # Create checksum file
@@ -200,6 +201,7 @@ class Disc:
         metadata['acquisitionStart'] = acquisitionStart
         metadata['acquisitionEnd'] = acquisitionEnd
         metadata['successFlag'] = self.successFlag
+        metadata['interruptedFlag'] = self.interruptedFlag
         metadata['checksums'] = checksums
         metadata['checksumType'] = 'SHA-512'
 
