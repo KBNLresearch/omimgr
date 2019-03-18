@@ -54,11 +54,11 @@ class omimgrGUI(tk.Frame):
         # Build the GUI
         self.build_gui()
 
-    def on_quit(self):
+    def on_quit(self, event=None):
         """Quit omimgr"""
         os._exit(0)
 
-    def on_submit(self):
+    def on_submit(self, event=None):
         """fetch and validate entered input, and start processing"""
 
         # This flag is true if all input validates
@@ -231,7 +231,7 @@ class omimgrGUI(tk.Frame):
         config.interruptFlag = True
         self.interrupt_button.configure(state='disabled')
 
-    def decreaseRetries(self):
+    def decreaseRetries(self, event=None):
         """Decrease value of retries"""
         try:
             retriesOld = int(self.retries_entry.get().strip())
@@ -242,7 +242,7 @@ class omimgrGUI(tk.Frame):
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, str(retriesNew))
 
-    def increaseRetries(self):
+    def increaseRetries(self, event=None):
         """Increase value of retries"""
         try:
             retriesOld = int(self.retries_entry.get().strip())
@@ -253,7 +253,7 @@ class omimgrGUI(tk.Frame):
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, str(retriesNew))
 
-    def insertUUID(self):
+    def insertUUID(self, event=None):
         """Insert UUID into identifier field"""
         myID = str(uuid.uuid1())
         self.identifier_entry.delete(0, tk.END)
@@ -275,7 +275,7 @@ class omimgrGUI(tk.Frame):
         # Output Directory
         self.outDirButton_entry = tk.Button(self,
                                             text='Select Output Directory',
-                                            underline=0,
+                                            underline=14,
                                             command=self.selectOutputDirectory,
                                             width=20)
         self.outDirButton_entry.grid(column=0, row=3, sticky='w')
@@ -295,6 +295,7 @@ class omimgrGUI(tk.Frame):
         # Interrupt button (disabled on startup)
         self.interrupt_button = tk.Button(self,
                                           text='Interrupt',
+                                          underline=0,
                                           command=self.interruptImaging,
                                           width=8)
         self.interrupt_button.grid(column=2, row=5, sticky='e')
@@ -377,7 +378,9 @@ class omimgrGUI(tk.Frame):
         self.identifier_entry['background'] = 'white'
         self.identifier_entry.insert(tk.END, self.disc.identifier)
         self.identifier_entry.grid(column=1, row=14, sticky='w')
-        self.uuidButton = tk.Button(self, text='UUID', command=self.insertUUID, width=2)
+        self.uuidButton = tk.Button(self, text='UUID',
+                                    underline=0, command=self.insertUUID,
+                                    width=2)
         self.uuidButton.grid(column=1, row=14, sticky='e')
 
         # Description entry field
@@ -423,7 +426,9 @@ class omimgrGUI(tk.Frame):
         self.root.bind_all('<Control-Key-i>', self.interruptImaging)
         self.root.bind_all('<Control-Key-s>', self.on_submit)
         self.root.bind_all('<Control-Key-e>', self.on_quit)
-    
+        self.root.bind_all('<Control-Key-u>', self.insertUUID)
+        self.root.bind_all('<Control-Key-l>', self.importMetadata)
+          
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
 
