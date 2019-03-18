@@ -9,11 +9,13 @@ Research department,  KB / National Library of the Netherlands
 
 import sys
 import os
+import io
 import time
 import threading
 import logging
 import queue
 import uuid
+import json
 import _thread as thread
 import tkinter as tk
 from tkinter import filedialog as tkFileDialog
@@ -185,7 +187,44 @@ class omimgrGUI(tk.Frame):
         dirInit = self.disc.dirOut
         self.disc.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
         self.outDirLabel['text'] = self.disc.dirOut
-    
+
+
+    def importMetadata(self, event=None):
+
+        loadSuccessFlag = True
+        """Set prefix, extension, identifier, description, notes
+        according to existing metadata file"""
+        metadataFile = os.path.join(self.disc.dirOut, self.disc.metadataFileName)
+        try:
+            with io.open(metadataFile, 'r', encoding='utf-8') as f:
+                mdDict = json.load(f)
+
+        except IOError:
+            loadSuccessFlag = False
+            msg = ("An error occurred while trying to read  " + metadataFile)
+            tkMessageBox.showerror("ERROR", msg)
+        except ValueError:
+            loadSuccessFlag = False
+            msg = ("Cannote decode JSON from "  + metadataFile)
+            tkMessageBox.showerror("ERROR", msg)
+        
+        if loadSuccessFlag:
+            try:         
+                self.prefix_entry.delete(0, tk.END)
+                self.prefix_entry.insert(tk.END, mdDict['prefix'])
+                self.extension_entry.delete(0, tk.END)
+                self.extension_entry.insert(tk.END, mdDict['extension'])
+                self.identifier_entry.delete(0, tk.END)
+                self.identifier_entry.insert(tk.END, mdDict['identifier'])
+                self.description_entry.delete(0, tk.END)
+                self.description_entry.insert(tk.END, mdDict['description'])
+                self.notes_entry.delete(1.0, tk.END)
+                self.notes_entry.insert(tk.END, mdDict['notes'])
+            except KeyError:
+                msg = ("Parsing of metadata file resulted in an error")
+                tkMessageBox.showerror("ERROR", msg)
+
+
     def interruptImaging(self, event=None):
         """Interrupt imaging process"""
         config.interruptFlag = True
@@ -285,67 +324,74 @@ class omimgrGUI(tk.Frame):
                                     value=2)
         self.rbRescue.grid(column=1, row=7, sticky='w')
 
-
-        # Prefix
-        tk.Label(self, text='Prefix').grid(column=0, row=8, sticky='w')
-        self.prefix_entry = tk.Entry(self, width=20)
-        self.prefix_entry['background'] = 'white'
-        self.prefix_entry.insert(tk.END, self.disc.prefix)
-        self.prefix_entry.grid(column=1, row=8, sticky='w')
-
-        # Extension
-        tk.Label(self, text='Extension').grid(column=0, row=9, sticky='w')
-        self.extension_entry = tk.Entry(self, width=20)
-        self.extension_entry['background'] = 'white'
-        self.extension_entry.insert(tk.END, self.disc.extension)
-        self.extension_entry.grid(column=1, row=9, sticky='w')
-
         # Retries
-        tk.Label(self, text='Retries').grid(column=0, row=10, sticky='w')
+        tk.Label(self, text='Retries').grid(column=0, row=8, sticky='w')
         self.retries_entry = tk.Entry(self, width=20)
         self.retries_entry['background'] = 'white'
         self.retries_entry.insert(tk.END, self.disc.retriesDefault)
-        self.retries_entry.grid(column=1, row=10, sticky='w')
+        self.retries_entry.grid(column=1, row=8, sticky='w')
         self.decreaseRetriesButton = tk.Button(self, text='-',
                                                command=self.decreaseRetries,
                                                width=1)
-        self.decreaseRetriesButton.grid(column=1, row=10, sticky='e')
+        self.decreaseRetriesButton.grid(column=1, row=8, sticky='e')
         self.increaseRetriesButton = tk.Button(self, text='+',
                                                command=self.increaseRetries,
                                                width=1)
-        self.increaseRetriesButton.grid(column=2, row=10, sticky='w')
+        self.increaseRetriesButton.grid(column=2, row=8, sticky='w')
 
         # Direct disc mode
-        tk.Label(self, text='Direct disc mode (ddrescue)').grid(column=0, row=11, sticky='w')
+        tk.Label(self, text='Direct disc mode (ddrescue)').grid(column=0, row=9, sticky='w')
         self.rescueDirectDiscMode = tk.BooleanVar()
         self.rescueDirectDiscMode.set(self.disc.rescueDirectDiscMode)
         self.rescueDirectDiscMode_entry = tk.Checkbutton(self, variable=self.rescueDirectDiscMode)
-        self.rescueDirectDiscMode_entry.grid(column=1, row=11, sticky='w')
+        self.rescueDirectDiscMode_entry.grid(column=1, row=9, sticky='w')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=12, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=10, columnspan=4, sticky='ew')
+
+        # Load from json
+        self.loadJsonButton = tk.Button(self,
+                                            text='Load metadata from json',
+                                            underline=0,
+                                            command=self.importMetadata,
+                                            width=20)
+        self.loadJsonButton.grid(column=0, row=11, sticky='w')
+    
+        # Prefix
+        tk.Label(self, text='Prefix').grid(column=0, row=12, sticky='w')
+        self.prefix_entry = tk.Entry(self, width=20)
+        self.prefix_entry['background'] = 'white'
+        self.prefix_entry.insert(tk.END, self.disc.prefix)
+        self.prefix_entry.grid(column=1, row=12, sticky='w')
+
+        # Extension
+        tk.Label(self, text='Extension').grid(column=0, row=13, sticky='w')
+        self.extension_entry = tk.Entry(self, width=20)
+        self.extension_entry['background'] = 'white'
+        self.extension_entry.insert(tk.END, self.disc.extension)
+        self.extension_entry.grid(column=1, row=13, sticky='w')
 
         # Identifier entry field
-        tk.Label(self, text='Identifier').grid(column=0, row=13, sticky='w')
+        tk.Label(self, text='Identifier').grid(column=0, row=14, sticky='w')
         self.identifier_entry = tk.Entry(self, width=35)
         self.identifier_entry['background'] = 'white'
         self.identifier_entry.insert(tk.END, self.disc.identifier)
-        self.identifier_entry.grid(column=1, row=13, sticky='w')
+        self.identifier_entry.grid(column=1, row=14, sticky='w')
         self.uuidButton = tk.Button(self, text='UUID', command=self.insertUUID, width=2)
-        self.uuidButton.grid(column=1, row=13, sticky='e')
+        self.uuidButton.grid(column=1, row=14, sticky='e')
 
         # Description entry field
-        tk.Label(self, text='Description').grid(column=0, row=14, sticky='w')
+        tk.Label(self, text='Description').grid(column=0, row=15, sticky='w')
         self.description_entry = tk.Entry(self, width=45)
         self.description_entry['background'] = 'white'
         self.description_entry.insert(tk.END, self.disc.description)
-        self.description_entry.grid(column=1, row=14, sticky='w', columnspan=1)
+        self.description_entry.grid(column=1, row=15, sticky='w', columnspan=1)
 
         # Notes entry field
-        tk.Label(self, text='Notes').grid(column=0, row=15, sticky='w')
+        tk.Label(self, text='Notes').grid(column=0, row=16, sticky='w')
         self.notes_entry = tk.Text(self, height=6, width=45)
         self.notes_entry['background'] = 'white'
         self.notes_entry.insert(tk.END, self.disc.notes)
-        self.notes_entry.grid(column=1, row=15, sticky='w', columnspan=1)
+        self.notes_entry.grid(column=1, row=16, sticky='w', columnspan=1)
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=17, columnspan=4, sticky='ew')
 
