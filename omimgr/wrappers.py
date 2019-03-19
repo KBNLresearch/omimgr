@@ -12,7 +12,9 @@ def getReadErrors(rescueLine):
     lineItems = rescueLine.split(",")
 
     for item in lineItems:
-        if "read errors:" in item:
+        # Note that 'errors' item was renamed to 'read errors' between ddrescue 1.19 and 1.22
+        # This should work in either case
+        if "errors:" in item:
             reEntry = item.split(":")
             readErrors = int(reEntry[1].strip())
 
@@ -131,7 +133,7 @@ def ddrescue(args):
 
                 if tidy_line != "":
 
-                    if "read errors:" in tidy_line:
+                    if "errors:" in tidy_line:
                         # Parse this line for value of read errors
                         readErrors = getReadErrors(tidy_line)
                     try:
@@ -157,9 +159,10 @@ def ddrescue(args):
         # Parse any remaining lines afterwards.
         if line != "":
             tidy_line = line.replace("\n", "").replace("\r", "").replace("\x1b[A", "")
-            if "read errors:" in tidy_line:
+            if "errors:" in tidy_line:
                 # Parse this line for value of read errors
                 readErrors = getReadErrors(tidy_line)
+
             logging.info(tidy_line)
 
         p.wait()
