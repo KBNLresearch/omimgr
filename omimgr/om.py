@@ -11,6 +11,7 @@ import logging
 import glob
 import pathlib
 from shutil import which
+from isolyzer import isolyzer
 from . import wrappers
 from . import config
 from . import shared
@@ -61,6 +62,8 @@ class Disc:
         self.interruptedFlag = False
         self.readErrorFlag = False
         self.configSuccess = True
+        self.isolyzerSuccess = False
+        self.imageTruncated = True
         self.timeZone = ''
         self.defaultDir = ''
 
@@ -175,7 +178,32 @@ class Disc:
             args.append(self.mapFile)
             readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.ddrescue(args)
 
-        if self.readErrorFlag or self.interruptedFlag:
+        # Run isolyzer to verify if ISO is complete and extract volume identifier text string
+        try:
+            isolyzerResult = isolyzer.processImage(self.imageFile, 0)
+            # Isolyzer status
+            try:
+                if isolyzerResult.find('statusInfo/success').text == "True":
+                    self.isolyzerSuccess = True
+                else:
+                    self.isolyzerSuccess = False
+            except AttributeError:
+                self.isolyzerSuccess = False
+
+            # Is ISO image smaller than expected (if True, this indicates the image may be truncated)
+            try:
+                self.imageTruncated = isolyzerResult.find('tests/smallerThanExpected').text
+            except AttributeError:
+                self.imageTruncated = True
+
+        except IOError:
+            self.isolyzerSuccess = False
+            self.imageTruncated = True
+        
+        logging.info('isolyzerSuccess: ' + str(self.isolyzerSuccess))
+        logging.info('imageTruncated: ' + str(self.imageTruncated))
+        
+        if self.readErrorFlag or self.interruptedFlag or self.imageTruncated or not self.isolyzerSuccess:
             self.successFlag = False
 
         # Create checksum file
@@ -201,6 +229,8 @@ class Disc:
         metadata['acquisitionStart'] = acquisitionStart
         metadata['acquisitionEnd'] = acquisitionEnd
         metadata['successFlag'] = self.successFlag
+        metadata['isolyzerSuccess'] = self.isolyzerSuccess
+        metadata['imageTruncated'] = self.imageTruncated
         metadata['interruptedFlag'] = self.interruptedFlag
         metadata['checksums'] = checksums
         metadata['checksumType'] = 'SHA-512'
