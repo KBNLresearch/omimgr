@@ -80,13 +80,6 @@ class omimgrGUI(tk.Frame):
         self.disc.description = self.description_entry.get().strip()
         self.disc.notes = self.notes_entry.get(1.0, tk.END).strip()
         self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
-        ## TEST
-        uInput = [self.disc.omDevice, self.disc.readCommand, self.disc.prefix,
-                  self.disc.extension, self.disc.retries, self.disc.rescueDirectDiscMode,
-                  self.disc.identifier, self.disc.description, self.disc.notes, self.disc.dirOut]
-        for item in uInput:
-            print(item)
-        ## TEST
 
         # Validate input
         self.disc.validateInput()
