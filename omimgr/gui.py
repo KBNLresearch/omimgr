@@ -508,7 +508,7 @@ class omimgrGUI(tk.Frame):
         self.logger = logging.getLogger()
 
         # This sets the console output format (slightly different from basicConfig!)
-        formatter = logging.Formatter('%(levelname)s: %(message)s')
+        formatter = logging.Formatter('%(message)s')
         self.queue_handler.setFormatter(formatter)
         self.logger.addHandler(self.queue_handler)
 
