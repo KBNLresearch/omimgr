@@ -80,6 +80,7 @@ class omimgrGUI(tk.Frame):
         self.disc.description = self.description_entry.get().strip()
         self.disc.notes = self.notes_entry.get(1.0, tk.END).strip()
         self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
+        self.disc.autoRetry = self.autoRetry.get()
 
         # Validate input
         self.disc.validateInput()

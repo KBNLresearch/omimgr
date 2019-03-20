@@ -72,11 +72,11 @@ Use the *Select Output Directory* button to navigate to an (empty) directory whe
 |**Retries**|Maximum number of retries (default: `4`).|
 |**Direct disc mode**|Check this option to read a disc in direct disc mode (setting only has effect with *ddrescue*) (disabled by default).|
 |**Auto-retry with ddrescue on readom failure**|This checkbox controls the behaviour with discs that result in read errors with *readom*. If checked, *omimgr* will automatically re-try such a disc with *ddrescue*. Otherwise, *omimgr* will first display a confirmation dialog.|
-|**Load existing metadata**|Loads *Prefix*, *Extension*, *Identifier*, *Description* and *Notes* values (see below) from existing metadata file in the output directory. Useful for re-running discs that were previously interrupted or unfinished. If no metadata file can be found *omimgr* will display an error, and the fields can be entered manually|
+|**Load existing metadata**|Loads *Prefix*, *Extension*, *Identifier*, *Description* and *Notes* values (see below) from an existing metadata file in the output directory that was created by a previous *omimgr* session. Useful for re-running discs that were previously interrupted or unfinished. If no metadata file can be found, *omimgr* will display an error, and the fields can be entered manually|
 |**Prefix**|Output prefix (default: `disc`).|
 |**Extension**|Output file extension (default: `iso`).|
 |**Identifier**|Unique identifier. You can either enter an existing identifier yourself, or press the *UUID* button to generate a [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).|
-|**Description**|A text string that describes the tape (e.g. the title that is written on its inlay card).|
+|**Description**|A text string that describes the disc (e.g. a title that is written on the inlay card).|
 |**Notes**|Any additional info or notes you want to record with the disc.|
 
 Press the *Start* button to start imaging a disc. You can monitor the progress of the extraction procedure in the progress window:
