@@ -111,7 +111,19 @@ In general *readom* is the preferred tool to read a CD-ROM or DVD. However, *rea
 
 ## Interrupting readom or ddrescue
 
-Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for discs that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. If you re-run *omimgr* with *ddrescue* on an image that was previously interrupted, it will simply pick up on where the interrupted run stopped. Note that interrupting *readom* will generally result in an unreadable ISO image. 
+Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for discs that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. Interrupting *readom* will generally result in an unreadable ISO image. 
+
+## Resuming an interrupted ddrescue run
+
+Follow these steps to resume a *ddrescue* run that was previously interrupted:
+
+1. After launching *omimgr*, set the output directory to the directory of the interrupted run.
+
+2. Set **Read method** to *ddrescue*.
+
+3. Click on the **Load existing metadata** button; this loads the previously entered *Prefix*, *Extension*, *Identifier*, *Description* and *Notes* values.
+
+4. Hit the **Start** button. Now *ddrescue* will simply pick up on where the interrupted run stopped.
 
 ## Metadata file
 
@@ -142,7 +154,6 @@ The file *metadata.json* contains metadata in JSON format. Below is an example:
         "rescueDirectDiscMode": false,
         "successFlag": true
     }
-
 
 ## Configuration file
 
