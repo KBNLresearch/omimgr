@@ -157,6 +157,13 @@ The file *metadata.json* contains metadata in JSON format. Below is an example:
         "successFlag": true
     }
 
+Most of these fields are self-explanatory, but the following need some further explanation:
+
+- **imageTruncated** is a Boolean flag that is *true* if the ISO image is smaller than expected (which is an indication that the image is truncated/incomplete), and *false*. Its value is based on an analysis of the image with the [*Isolyzer*](https://github.com/KBNLresearch/isolyzer) tool.
+- **isolyzerSuccess** is a Boolean flag that is *true* if *Isolyzer* ran successfully, and *false* otherwise.
+- **interruptedFlag** is a Boolean flag that is *true* if *readom* or *ddrescue* were interrupted, and *false* otherwise.
+- **successFlag** is a Boolean flag that is *true* if the disc was imaged without any problems, and *false* otherwise.
+
 ## Configuration file
 
 *Omimgr*'s internal settings (default values for output file names, the optical device, etc.) are defined in a configuration file in Json format. For a global installation it is located at */etc/omimgr/omimgr.json*; for a user install it can be found at *~/.config/omimgr/omimgr.json*. The default configuration is show below:
