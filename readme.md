@@ -95,7 +95,7 @@ Here, **handbook.iso** is the created ISO image; **checksums.sha512** contains t
 
 If *readom*'s attempt to read the disc resulted in any errors, *omimgr* prompts the user to try again with *ddrescue*:
 
-![](./img/errors-readom.png)
+![](./img/error-readom.png)
 
 After clicking *Yes*, *omimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more additional passes with *ddrescue*:
 
@@ -103,13 +103,15 @@ After clicking *Yes*, *omimgr* will delete the disc image that was created by *r
 
 After clicking *Yes*, you can activate *Direct Disc* mode, or select another optical drive. Press the *Start* button again to start reading the disc. Importantly, *omimgr* does not delete the existing disc image in this case, but it will update it with any additional data that can be rescued from the disc.
 
+Note that *ddrescue* runs result in an additional [*mapfile*](https://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html#Mapfile-structure) (**$prefix.map**). The map file contains information about the recovery status of data blocks, which allows *ddrescue* to resume previously interrupted recovery sessions. 
+
 ## Suggested workflow
 
 In general *readom* is the preferred tool to read a CD-ROM or DVD. However, *readom* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the disc with *readom*. If this results in any errors, try *ddrescue*. It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *omimgr*'s interface). The results can often be further improved by running multiple *ddrescue* passes with different optical devices (e.g. a few different external USB drives).
 
 ## Interrupting readom or ddrescue
 
-Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for discs that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. If you re-run *omimgr* with *ddrescue* on an image that was previously interrupted, it will simply pick up on where the interrupted run stopped. 
+Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for discs that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. If you re-run *omimgr* with *ddrescue* on an image that was previously interrupted, it will simply pick up on where the interrupted run stopped. Note that interrupting *readom* will generally result in an unreadable ISO image. 
 
 ## Metadata file
 
