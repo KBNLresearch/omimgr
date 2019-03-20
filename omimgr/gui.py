@@ -185,38 +185,47 @@ class omimgrGUI(tk.Frame):
 
     def importMetadata(self, event=None):
 
+        metadataFileExists = True
         loadSuccessFlag = True
         """Set prefix, extension, identifier, description, notes
         according to existing metadata file"""
         metadataFile = os.path.join(self.disc.dirOut, self.disc.metadataFileName)
-        try:
-            with io.open(metadataFile, 'r', encoding='utf-8') as f:
-                mdDict = json.load(f)
 
-        except IOError:
-            loadSuccessFlag = False
-            msg = ("An error occurred while trying to read  " + metadataFile)
+        if not os.path.isfile(metadataFile):
+            metadataFileExists = False
+            msg = ('No metadata file found in directory ' + self.disc.dirOut + '!')
             tkMessageBox.showerror("ERROR", msg)
-        except ValueError:
-            loadSuccessFlag = False
-            msg = ("Cannote decode JSON from "  + metadataFile)
-            tkMessageBox.showerror("ERROR", msg)
-        
-        if loadSuccessFlag:
-            try:         
-                self.prefix_entry.delete(0, tk.END)
-                self.prefix_entry.insert(tk.END, mdDict['prefix'])
-                self.extension_entry.delete(0, tk.END)
-                self.extension_entry.insert(tk.END, mdDict['extension'])
-                self.identifier_entry.delete(0, tk.END)
-                self.identifier_entry.insert(tk.END, mdDict['identifier'])
-                self.description_entry.delete(0, tk.END)
-                self.description_entry.insert(tk.END, mdDict['description'])
-                self.notes_entry.delete(1.0, tk.END)
-                self.notes_entry.insert(tk.END, mdDict['notes'])
-            except KeyError:
-                msg = ("Parsing of metadata file resulted in an error")
+
+        if metadataFileExists:
+
+            try:
+                with io.open(metadataFile, 'r', encoding='utf-8') as f:
+                    mdDict = json.load(f)
+
+            except IOError:
+                loadSuccessFlag = False
+                msg = ("An error occurred while trying to read  " + metadataFile)
                 tkMessageBox.showerror("ERROR", msg)
+            except ValueError:
+                loadSuccessFlag = False
+                msg = ("Cannote decode JSON from "  + metadataFile)
+                tkMessageBox.showerror("ERROR", msg)
+        
+            if loadSuccessFlag:
+                try:         
+                    self.prefix_entry.delete(0, tk.END)
+                    self.prefix_entry.insert(tk.END, mdDict['prefix'])
+                    self.extension_entry.delete(0, tk.END)
+                    self.extension_entry.insert(tk.END, mdDict['extension'])
+                    self.identifier_entry.delete(0, tk.END)
+                    self.identifier_entry.insert(tk.END, mdDict['identifier'])
+                    self.description_entry.delete(0, tk.END)
+                    self.description_entry.insert(tk.END, mdDict['description'])
+                    self.notes_entry.delete(1.0, tk.END)
+                    self.notes_entry.insert(tk.END, mdDict['notes'])
+                except KeyError:
+                    msg = ("Parsing of metadata file resulted in an error")
+                    tkMessageBox.showerror("ERROR", msg)
 
 
     def interruptImaging(self, event=None):
