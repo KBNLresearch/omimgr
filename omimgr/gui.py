@@ -67,11 +67,11 @@ class omimgrGUI(tk.Frame):
         # Fetch entered values (strip any leading / trailing whitespace characters)
         self.disc.omDevice = self.omDevice_entry.get().strip()
 
-        # Lookup readCommand for readCommandCode value
-        readCommandCode = self.v.get()
-        for i in self.readCommands:
-            if i[1] == readCommandCode:
-                self.disc.readCommand = i[0]
+        # Lookup readMethod for readMethodCode value
+        readMethodCode = self.v.get()
+        for i in self.readMethods:
+            if i[1] == readMethodCode:
+                self.disc.readMethod = i[0]
 
         self.disc.retries = self.retries_entry.get().strip()
         self.disc.prefix = self.prefix_entry.get().strip()
@@ -116,7 +116,7 @@ class omimgrGUI(tk.Frame):
 
         # Ask confirmation if readom is used on dir with existing files
         outDirConfirmFlag = True
-        if self.disc.outputExistsFlag and self.disc.readCommand == 'readom':
+        if self.disc.outputExistsFlag and self.disc.readMethod == 'readom':
             msg = ('writing to ' + self.disc.dirOut + ' will overwrite existing files!\n'
                    'press OK to continue, otherwise press Cancel')
             outDirConfirmFlag = tkMessageBox.askokcancel("Overwrite files?", msg)
@@ -131,7 +131,7 @@ class omimgrGUI(tk.Frame):
                 inputValidateFlag = False
         # If ddrescue is used, delete old image file, but only if no map file
         # can be found (which indicates readom output)
-        elif self.disc.outputExistsFlag and self.disc.readCommand == 'ddrescue':
+        elif self.disc.outputExistsFlag and self.disc.readMethod == 'ddrescue':
             if not os.path.isfile(self.disc.mapFile):
                 os.remove(self.disc.imageFile)
 
@@ -298,14 +298,14 @@ class omimgrGUI(tk.Frame):
         self.v = tk.IntVar()
         self.v.set(1)
 
-        # List with all possible read commands, corresponding button codes, keyboard
+        # List with all possible read methods, corresponding button codes, keyboard
         # shortcut character (keyboard shortcuts not actually used yet)
-        self.readCommands = [
+        self.readMethods = [
             ['readom', 1, 0],
             ['ddrescue', 2, 3],
         ]
 
-        tk.Label(self, text='Read command').grid(column=0, row=6, sticky='w')
+        tk.Label(self, text='Read method').grid(column=0, row=6, sticky='w')
 
         self.rbReadom = tk.Radiobutton(self,
                                     text='readom',
@@ -345,7 +345,7 @@ class omimgrGUI(tk.Frame):
 
         # Load from json
         self.loadJsonButton = tk.Button(self,
-                                            text='Load metadata from json',
+                                            text='Load existing metadata',
                                             underline=0,
                                             command=self.importMetadata,
                                             width=20)
@@ -442,7 +442,7 @@ class omimgrGUI(tk.Frame):
             self.disc.dirOut = self.disc.defaultDir
         else:
             self.disc.dirOut = os.path.expanduser("~")
-        # Set readCommand to readom
+        # Set readMethod to readom
         self.v.set(1)
         # Logging stuff
         self.logger = logging.getLogger()
@@ -590,14 +590,14 @@ def main():
                     # Imaging completed with no errors
                     msg = ('Disc processed without errors')
                     tkMessageBox.showinfo("Success", msg)
-                elif myGUI.disc.readCommand == 'readom':
+                elif myGUI.disc.readMethod == 'readom':
                     # Imaging resulted in errors
                     msg = ('Errors occurred while processing this disc\n'
                            'Try again with ddrescue? (This will overwrite\n'
                            'existing image file)')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromReadomFlag = True
-                elif myGUI.disc.readCommand == 'ddrescue':
+                elif myGUI.disc.readMethod == 'ddrescue':
                     # Imaging resulted in errors
                     msg = ('One or more errors occurred while processing disc\n'
                            'Try another ddrescue pass? (Hint: you may try using\n'
@@ -609,7 +609,7 @@ def main():
                     # Reset flags
                     myGUI.disc.readErrorFlag = False
                     myGUI.disc.finishedFlag = False
-                    # Set readCommand to ddrescue
+                    # Set readMethod to ddrescue
                     myGUI.v.set(2)
                     myGUI.on_submit()
                     retryFromReadomFlag = False

@@ -68,7 +68,7 @@ Use the *Select Output Directory* button to navigate to an (empty) directory whe
 |Option|Description|
 |:-|:-|
 |**Optical Device**|The optical devices that is used (default: `/dev/nst0`).|
-|**Read command**|The command that is used to read the disc (default: `readom`).|
+|**Read method**|The method (application) that is used to read the disc (default: `readom`).|
 |**Prefix**|Output prefix (default: `disc`).|
 |**Extension**|Output file extension (default: `iso`).|
 |**Retries**|Maximum number of retries (default: `4`).|
@@ -123,17 +123,20 @@ The file *metadata.json* contains metadata in JSON format. Below is an example:
         "description": "Preservation Management of Digital Materials",
         "extension": "iso",
         "identifier": "6f816238-474c-11e9-9105-dc4a3e413173",
+        "imageTruncated": false,
         "interruptedFlag": false,
+        "isolyzerSuccess": true,
         "maxRetries": "4",
         "notes": "",
         "omDevice": "/dev/sr1",
         "omimgrVersion": "0.1.0",
         "prefix": "handbook",
-        "readCommand": "readom",
+        "readMethod": "readom",
         "readCommandLine": "readom retries=4 dev=/dev/sr1 f=/home/johan/test/handbook.iso",
         "rescueDirectDiscMode": false,
         "successFlag": true
     }
+
 
 ## Configuration file
 

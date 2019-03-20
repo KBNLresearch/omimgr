@@ -24,7 +24,7 @@ class Disc:
         # Input collected by GUI / CLI
         self.dirOut = ''
         self.omDevice = ''
-        self.readCommand = ''
+        self.readMethod = ''
         self.retries = ''
         self.prefix = ''
         self.extension = ''
@@ -146,7 +146,7 @@ class Disc:
         logging.info('omimgrVersion: ' + config.version)
         logging.info('dirOut: ' + self.dirOut)
         logging.info('omDevice: ' + self.omDevice)
-        logging.info('readCommand: ' + self.readCommand)
+        logging.info('readMethod: ' + self.readMethod)
         logging.info('maxRetries: ' + str(self.retries))
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
@@ -159,13 +159,13 @@ class Disc:
         args = ['umount', self.omDevice]
         wrappers.umount(args)
 
-        if self.readCommand == "readom":
+        if self.readMethod == "readom":
             args = ['readom']
             args.append('retries=' + str(self.retries))
             args.append('dev=' + self.omDevice)
             args.append('f=' + self.imageFile)
             readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.readom(args)
-        elif self.readCommand == "ddrescue":
+        elif self.readMethod == "ddrescue":
             args = ['ddrescue']
             if self.rescueDirectDiscMode:
                 args.append('-d')
@@ -220,7 +220,7 @@ class Disc:
         metadata['notes'] = self.notes
         metadata['omimgrVersion'] = config.version
         metadata['omDevice'] = self.omDevice
-        metadata['readCommand'] = self.readCommand
+        metadata['readMethod'] = self.readMethod
         metadata['readCommandLine'] = readCmdLine
         metadata['maxRetries'] = self.retries
         metadata['rescueDirectDiscMode'] = self.rescueDirectDiscMode
