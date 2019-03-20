@@ -107,7 +107,9 @@ Note that *ddrescue* runs result in an additional [*mapfile*](https://www.gnu.or
 
 ## Suggested workflow
 
-In general *readom* is the preferred tool to read a CD-ROM or DVD. However, *readom* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the disc with *readom*. If this results in any errors, try *ddrescue*. It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *omimgr*'s interface). The results can often be further improved by running multiple *ddrescue* passes with different optical devices (e.g. a few different external USB drives).
+In general *readom* is the preferred tool to read a CD-ROM or DVD. However, *readom* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the disc with *readom*. If this results in any errors, try *ddrescue*. If you check the **Auto-retry** box, *omimgr* will automatically launch *ddrescue* if the initial attempt to read the disc with *readom* failed (i.e. it will not display the confirmation dialog).
+
+It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *omimgr*'s interface). The results can often be further improved by running multiple *ddrescue* passes with different optical devices (e.g. a few different external USB drives).
 
 ## Interrupting readom or ddrescue
 
