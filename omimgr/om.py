@@ -26,6 +26,8 @@ class Disc:
         self.omDevice = ''
         self.readMethod = ''
         self.retries = ''
+        self.readomVersion = ''
+        self.ddRescueVersion = ''
         self.prefix = ''
         self.extension = ''
         self.rescueDirectDiscMode = ''
@@ -118,6 +120,10 @@ class Disc:
         if which("ddrescue") is not None:
             self.ddrescueInstalled = True
 
+        # Get readom and ddrescue version strings
+        self.readomVersion = wrappers.getVersion(['readom'])
+        self.ddRescueVersion = wrappers.getVersion(['ddrescue'])
+
         # Check if selected block device exists
         p = pathlib.Path(self.omDevice)
         self.deviceExistsFlag = p.is_block_device()
@@ -130,7 +136,7 @@ class Disc:
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
 
         # Ddrescue map file
-        self.mapFile = os.path.join(self.dirOut, self.prefix + '.log')
+        self.mapFile = os.path.join(self.dirOut, self.prefix + '.map')
 
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
@@ -225,6 +231,10 @@ class Disc:
         metadata['omimgrVersion'] = config.version
         metadata['omDevice'] = self.omDevice
         metadata['readMethod'] = self.readMethod
+        if self.readMethod == "readom":
+            metadata['readMethodVersion'] = self.readomVersion
+        if self.readMethod == "ddrescue":
+            metadata['readMethodVersion'] = self.ddRescueVersion
         metadata['readCommandLine'] = readCmdLine
         metadata['maxRetries'] = self.retries
         metadata['rescueDirectDiscMode'] = self.rescueDirectDiscMode

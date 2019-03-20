@@ -222,36 +222,33 @@ def umount(args):
 
     return cmdLine, exitStatus
 
-def generic(args):
-    """generic wapper function for tools that don't require any special text processing"""
+def getVersion(args):
+    """Returns readom or ddrescue version string"""
+
+    args.append('--version')
+
+    versionString = ''
+
     try:
         p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False)
         output, errors = p.communicate()
 
         # Decode output to UTF8
         outputAsString = output.decode('utf-8')
-        errorsAsString = errors.decode('utf-8')
+
+        # Output to list
+        outputList = outputAsString.splitlines()
 
         exitStatus = p.returncode
 
     except Exception:
         # I don't even want to to start thinking how one might end up here ...
         exitStatus = -99
-        outputAsString = ""
-        errorsAsString = ""
 
-    # Logging
     cmdName = args[0]
-    cmdLine = ' '.join(args)
-    logging.info('Command: ' + cmdLine)
 
-    if exitStatus == 0:
-        logging.info(cmdName + ' status: ' + str(exitStatus))
-        logging.info(cmdName + ' stdout:\n' + outputAsString)
-        logging.info(cmdName + ' stderr:\n' + errorsAsString)
-    else:
-        logging.error(cmdName + ' status: ' + str(exitStatus))
-        logging.error(cmdName + ' stdout:\n' + outputAsString)
-        logging.error(cmdName + ' stderr:\n' + errorsAsString)
-
-    return cmdLine, exitStatus
+    for line in outputList:
+        if cmdName in line:
+            versionString = line.strip()
+    
+    return versionString
