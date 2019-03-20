@@ -29,6 +29,7 @@ class Disc:
         self.prefix = ''
         self.extension = ''
         self.rescueDirectDiscMode = ''
+        self.autoRetry = ''
         self.retriesDefault = ''
         self.identifier = ''
         self.description = ''
@@ -89,6 +90,7 @@ class Disc:
                 self.prefix = configDict['prefix']
                 self.extension = configDict['extension']
                 self.rescueDirectDiscMode = configDict['rescueDirectDiscMode']
+                self.autoRetry = configDict['autoRetry']
                 self.retriesDefault = configDict['retries']
                 self.timeZone = configDict['timeZone']
                 self.defaultDir = configDict['defaultDir']
@@ -120,8 +122,9 @@ class Disc:
         p = pathlib.Path(self.omDevice)
         self.deviceExistsFlag = p.is_block_device()
 
-        # Convert rescueDirectDiscMode to Boolean
+        # Convert rescueDirectDiscMode and autoRetry to Boolean
         self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode)
+        self.autoRetry = bool(self.autoRetry)
 
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
@@ -151,6 +154,7 @@ class Disc:
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
         logging.info('direct disc mode (ddrescue only): ' + str(self.rescueDirectDiscMode))
+        logging.info('automatically retry with ddrecue on readom failure: ' + str(self.autoRetry))
 
         ## Acquisition start date/time
         acquisitionStart = shared.generateDateTime(self.timeZone)
@@ -224,6 +228,7 @@ class Disc:
         metadata['readCommandLine'] = readCmdLine
         metadata['maxRetries'] = self.retries
         metadata['rescueDirectDiscMode'] = self.rescueDirectDiscMode
+        metadata['autoRetry'] = self.autoRetry
         metadata['prefix'] = self.prefix
         metadata['extension'] = self.extension
         metadata['acquisitionStart'] = acquisitionStart

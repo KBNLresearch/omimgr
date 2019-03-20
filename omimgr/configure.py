@@ -57,6 +57,7 @@ def writeConfigFile(configRootDir, removeFlag):
     configSettings['prefix'] = 'disc'
     configSettings['extension'] = 'iso'
     configSettings['rescueDirectDiscMode'] = 'False'
+    configSettings['autoRetry'] = 'False'
     configSettings['readCommand'] = 'readom'
     configSettings['timeZone'] = 'Europe/Amsterdam'
     configSettings['defaultDir'] = ''

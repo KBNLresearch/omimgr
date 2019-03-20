@@ -159,6 +159,7 @@ class omimgrGUI(tk.Frame):
                 self.decreaseRetriesButton.config(state='disabled')
                 self.increaseRetriesButton.config(state='disabled')
                 self.rescueDirectDiscMode_entry.config(state='disabled')
+                self.autoRetry_entry.config(state='disabled')
                 self.prefix_entry.config(state='disabled')
                 self.extension_entry.config(state='disabled')
                 self.rbReadom.config(state='disabled')
@@ -349,8 +350,15 @@ class omimgrGUI(tk.Frame):
         self.rescueDirectDiscMode.set(self.disc.rescueDirectDiscMode)
         self.rescueDirectDiscMode_entry = tk.Checkbutton(self, variable=self.rescueDirectDiscMode)
         self.rescueDirectDiscMode_entry.grid(column=1, row=9, sticky='w')
+    
+        # Direct disc mode
+        tk.Label(self, text='Auto-retry with ddrescue on readom failure').grid(column=0, row=10, sticky='w')
+        self.autoRetry = tk.BooleanVar()
+        self.autoRetry.set(self.disc.autoRetry)
+        self.autoRetry_entry = tk.Checkbutton(self, variable=self.autoRetry)
+        self.autoRetry_entry.grid(column=1, row=10, sticky='w')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=10, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=11, columnspan=4, sticky='ew')
 
         # Load from json
         self.loadJsonButton = tk.Button(self,
@@ -358,70 +366,70 @@ class omimgrGUI(tk.Frame):
                                             underline=0,
                                             command=self.importMetadata,
                                             width=20)
-        self.loadJsonButton.grid(column=0, row=11, sticky='w')
+        self.loadJsonButton.grid(column=0, row=12, sticky='w')
     
         # Prefix
-        tk.Label(self, text='Prefix').grid(column=0, row=12, sticky='w')
+        tk.Label(self, text='Prefix').grid(column=0, row=13, sticky='w')
         self.prefix_entry = tk.Entry(self, width=20)
         self.prefix_entry['background'] = 'white'
         self.prefix_entry.insert(tk.END, self.disc.prefix)
-        self.prefix_entry.grid(column=1, row=12, sticky='w')
+        self.prefix_entry.grid(column=1, row=13, sticky='w')
 
         # Extension
-        tk.Label(self, text='Extension').grid(column=0, row=13, sticky='w')
+        tk.Label(self, text='Extension').grid(column=0, row=14, sticky='w')
         self.extension_entry = tk.Entry(self, width=20)
         self.extension_entry['background'] = 'white'
         self.extension_entry.insert(tk.END, self.disc.extension)
-        self.extension_entry.grid(column=1, row=13, sticky='w')
+        self.extension_entry.grid(column=1, row=14, sticky='w')
 
         # Identifier entry field
-        tk.Label(self, text='Identifier').grid(column=0, row=14, sticky='w')
+        tk.Label(self, text='Identifier').grid(column=0, row=15, sticky='w')
         self.identifier_entry = tk.Entry(self, width=35)
         self.identifier_entry['background'] = 'white'
         self.identifier_entry.insert(tk.END, self.disc.identifier)
-        self.identifier_entry.grid(column=1, row=14, sticky='w')
+        self.identifier_entry.grid(column=1, row=15, sticky='w')
         self.uuidButton = tk.Button(self, text='UUID',
                                     underline=0, command=self.insertUUID,
                                     width=2)
-        self.uuidButton.grid(column=1, row=14, sticky='e')
+        self.uuidButton.grid(column=1, row=15, sticky='e')
 
         # Description entry field
-        tk.Label(self, text='Description').grid(column=0, row=15, sticky='w')
+        tk.Label(self, text='Description').grid(column=0, row=16, sticky='w')
         self.description_entry = tk.Entry(self, width=45)
         self.description_entry['background'] = 'white'
         self.description_entry.insert(tk.END, self.disc.description)
-        self.description_entry.grid(column=1, row=15, sticky='w', columnspan=1)
+        self.description_entry.grid(column=1, row=16, sticky='w', columnspan=1)
 
         # Notes entry field
-        tk.Label(self, text='Notes').grid(column=0, row=16, sticky='w')
+        tk.Label(self, text='Notes').grid(column=0, row=17, sticky='w')
         self.notes_entry = tk.Text(self, height=6, width=45)
         self.notes_entry['background'] = 'white'
         self.notes_entry.insert(tk.END, self.disc.notes)
-        self.notes_entry.grid(column=1, row=16, sticky='w', columnspan=1)
+        self.notes_entry.grid(column=1, row=17, sticky='w', columnspan=1)
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=17, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=18, columnspan=4, sticky='ew')
 
         self.start_button = tk.Button(self,
                                       text='Start',
                                       width=10,
                                       underline=0,
                                       command=self.on_submit)
-        self.start_button.grid(column=1, row=18, sticky='w')
+        self.start_button.grid(column=1, row=19, sticky='w')
 
         self.quit_button = tk.Button(self,
                                      text='Exit',
                                      width=10,
                                      underline=0,
                                      command=self.on_quit)
-        self.quit_button.grid(column=1, row=18, sticky='e')
+        self.quit_button.grid(column=1, row=19, sticky='e')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=19, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=20, columnspan=4, sticky='ew')
 
         # Add ScrolledText widget to display logging info
         self.st = ScrolledText.ScrolledText(self, state='disabled', height=15)
         self.st.configure(font='TkFixedFont')
         self.st['background'] = 'white'
-        self.st.grid(column=0, row=20, sticky='ew', columnspan=4)
+        self.st.grid(column=0, row=21, sticky='ew', columnspan=4)
 
         # Define bindings for keyboard shortcuts: buttons
         self.root.bind_all('<Control-Key-d>', self.selectOutputDirectory)
@@ -467,6 +475,7 @@ class omimgrGUI(tk.Frame):
         self.decreaseRetriesButton.config(state='normal')
         self.increaseRetriesButton.config(state='normal')
         self.rescueDirectDiscMode_entry.config(state='normal')
+        self.autoRetry_entry.config(state='normal')
         self.prefix_entry.config(state='normal')
         self.extension_entry.config(state='normal')
         self.rbReadom.config(state='normal')
@@ -495,6 +504,7 @@ class omimgrGUI(tk.Frame):
         self.notes_entry.delete(1.0, tk.END)
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.rescueDirectDiscMode_entry.variable = self.disc.rescueDirectDiscMode
+        self.autoRetry_entry.variable = self.disc.autoRetry
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
@@ -599,8 +609,11 @@ def main():
                     # Imaging completed with no errors
                     msg = ('Disc processed without errors')
                     tkMessageBox.showinfo("Success", msg)
-                elif myGUI.disc.readMethod == 'readom':
-                    # Imaging resulted in errors
+                elif myGUI.disc.readMethod == 'readom' and myGUI.disc.autoRetry:
+                    # Imaging resulted in errors, auto-retry with ddrescue
+                    retryFromReadomFlag = True
+                elif myGUI.disc.readMethod == 'readom' and not myGUI.disc.autoRetry:
+                    # Imaging resulted in errors, as if user wants to retry with ddrescue
                     msg = ('Errors occurred while processing this disc\n'
                            'Try again with ddrescue? (This will overwrite\n'
                            'existing image file)')
@@ -632,6 +645,7 @@ def main():
                     myGUI.decreaseRetriesButton.config(state='normal')
                     myGUI.increaseRetriesButton.config(state='normal')
                     myGUI.rescueDirectDiscMode_entry.config(state='normal')
+                    myGUI.autoRetry_entry.config(state='normal')
                     myGUI.start_button.config(state='normal')
                     myGUI.quit_button.config(state='normal')
                     retryFromRescueFlag = False
