@@ -69,10 +69,12 @@ Use the *Select Output Directory* button to navigate to an (empty) directory whe
 |:-|:-|
 |**Optical Device**|The optical devices that is used (default: `/dev/nst0`).|
 |**Read method**|The method (application) that is used to read the disc (default: `readom`).|
-|**Prefix**|Output prefix (default: `disc`).|
-|**Extension**|Output file extension (default: `iso`).|
 |**Retries**|Maximum number of retries (default: `4`).|
 |**Direct disc mode**|Check this option to read a disc in direct disc mode (setting only has effect with *ddrescue*) (disabled by default).|
+|**Auto-retry with ddrescue on readom failure**|This checkbox controls the behaviour with discs that result in read errors with *readom*. If checked, *omimgr* will automatically re-try such a disc with *ddrescue*. Otherwise, *omimgr* will first display a confirmation dialog.|
+|**Load existing metadata**|Loads *Prefix*, *Extension*, *Identifier*, *Description* and *Notes* values (see below) from existing metadata file in the output directory. Useful for re-running discs that were previously interrupted or unfinished. If no metadata file can be found *omimgr* will display an error, and the fields can be entered manually|
+|**Prefix**|Output prefix (default: `disc`).|
+|**Extension**|Output file extension (default: `iso`).|
 |**Identifier**|Unique identifier. You can either enter an existing identifier yourself, or press the *UUID* button to generate a [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).|
 |**Description**|A text string that describes the tape (e.g. the title that is written on its inlay card).|
 |**Notes**|Any additional info or notes you want to record with the disc.|
@@ -114,25 +116,27 @@ Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* ins
 The file *metadata.json* contains metadata in JSON format. Below is an example:
 
     {
-        "acquisitionEnd": "2019-03-15T19:03:49.332433+01:00",
-        "acquisitionStart": "2019-03-15T19:03:39.979201+01:00",
+        "acquisitionEnd": "2019-03-20T15:22:37.449475+01:00",
+        "acquisitionStart": "2019-03-20T15:22:28.074038+01:00",
+        "autoRetry": true,
         "checksumType": "SHA-512",
         "checksums": {
             "handbook.iso": "20eb93d8d0fa7fe24bd4debba6a0f1556c09a1b1c3a753bbf0d39445e72c3569e69e813c845629e1165ce57aa6d19ccb2b1a9df1a88fea9e7e464f6893fc7d02"
         },
         "description": "Preservation Management of Digital Materials",
         "extension": "iso",
-        "identifier": "6f816238-474c-11e9-9105-dc4a3e413173",
+        "identifier": "4148d87e-4b1b-11e9-a843-dc4a3e5f53bf",
         "imageTruncated": false,
         "interruptedFlag": false,
         "isolyzerSuccess": true,
         "maxRetries": "4",
-        "notes": "",
-        "omDevice": "/dev/sr1",
-        "omimgrVersion": "0.1.0",
+        "notes": "System requirements:\n\n- IBM compatible PC or Apple Macintosh\n- MS Windows 95 or OS 7 or above",
+        "omDevice": "/dev/sr0",
+        "omimgrVersion": "0.1.0b2",
         "prefix": "handbook",
+        "readCommandLine": "readom retries=4 dev=/dev/sr0 f=/home/johan/test/handbook.iso",
         "readMethod": "readom",
-        "readCommandLine": "readom retries=4 dev=/dev/sr1 f=/home/johan/test/handbook.iso",
+        "readMethodVersion": "readom 1.1.11 (Linux)",
         "rescueDirectDiscMode": false,
         "successFlag": true
     }
@@ -143,6 +147,7 @@ The file *metadata.json* contains metadata in JSON format. Below is an example:
 *Omimgr*'s internal settings (default values for output file names, the optical device, etc.) are defined in a configuration file in Json format. For a global installation it is located at */etc/omimgr/omimgr.json*; for a user install it can be found at *~/.config/omimgr/omimgr.json*. The default configuration is show below:
 
     {
+        "autoRetry": "False",
         "checksumFileName": "checksums.sha512",
         "defaultDir": "",
         "extension": "iso",
@@ -157,6 +162,8 @@ The file *metadata.json* contains metadata in JSON format. Below is an example:
     }
 
 You can change *omimgr*'s default settings by editing this file. Most of the above settings are self-explanatory, with the exception of the following:
+
+- **autoRetry**: this flag  sets the default value of the *Auto-retry* checkbox.
 
 - **defaultDir**: this allows you to change the default file path that is opened after pressing *Select Output Directory*. By default *omimgr* uses the current user's home directory. However, if *defaultDir* points to a valid directory path, that directory is used instead.
 
