@@ -5,7 +5,7 @@ omimgr, automated reading of optical media
 Author: Johan van der Knijff
 Research department,  KB / National Library of the Netherlands
 """
-import sys
+
 from .gui import main as guiLaunch
 from . import config
 
