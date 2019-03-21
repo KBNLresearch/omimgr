@@ -4,6 +4,7 @@ do the actual imaging.
 """
 
 import os
+import fcntl
 import io
 import json
 import time
@@ -40,6 +41,7 @@ class Disc:
         self.dirOutIsDirectory = False
         self.outputExistsFlag = False
         self.deviceExistsFlag = False
+        self.discInTrayFlag = False
         self.dirOutIsWritable = False
         # Flags that define if dependencies are installed
         self.ddrescueInstalled = False
@@ -99,6 +101,21 @@ class Disc:
             except KeyError:
                 self.configSuccess = False
 
+    def getTrayStatus(self, drivePath):
+        """Return status of CD tray, adapted from https://superuser.com/a/1367091/681049
+        Statuses:
+        1 = no disk in tray
+        2 = tray open
+        3 = reading tray
+        4 = disk in tray
+        """
+        fd = os.open(drivePath, os.O_RDONLY | os.O_NONBLOCK)
+        status = fcntl.ioctl(fd, 0x5326)
+        os.close(fd)
+        ## TEST
+        print("Drive status = " + str(status))
+        ## TEST
+        return status
 
     def validateInput(self):
         """Validate and pre-process input"""
@@ -127,6 +144,10 @@ class Disc:
         # Check if selected block device exists
         p = pathlib.Path(self.omDevice)
         self.deviceExistsFlag = p.is_block_device()
+
+        # Check if disc is in tray
+        if getTrayStatus(p) == 4:
+            self.discInTrayFlag = True
 
         # Convert rescueDirectDiscMode and autoRetry to Boolean
         self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode)

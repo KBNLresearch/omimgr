@@ -101,6 +101,11 @@ class omimgrGUI(tk.Frame):
             msg = ('Selected device is not accessible')
             tkMessageBox.showerror("ERROR", msg)
 
+        if not self.disc.discInTrayFlag:
+            inputValidateFlag = False
+            msg = ('No disc in tray')
+            tkMessageBox.showerror("ERROR", msg)
+
         if not self.disc.readomInstalled:
             inputValidateFlag = False
             msg = ("readom not installed!\n"
