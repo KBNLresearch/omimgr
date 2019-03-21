@@ -284,6 +284,7 @@ class Disc:
         if self.successFlag:
             wrappers.ejectDrive(self.omDevice)
             logging.info('Disc processed without errors')
+            logging.info('Ejecting disc')
         else:
             logging.error('One or more errors occurred while processing disc, '
                           'check log file for details')
