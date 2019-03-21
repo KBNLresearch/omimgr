@@ -112,9 +112,7 @@ class Disc:
         fd = os.open(drivePath, os.O_RDONLY | os.O_NONBLOCK)
         status = fcntl.ioctl(fd, 0x5326)
         os.close(fd)
-        ## TEST
-        print("Drive status = " + str(status))
-        ## TEST
+
         return status
 
     def validateInput(self):
@@ -146,7 +144,7 @@ class Disc:
         self.deviceExistsFlag = p.is_block_device()
 
         # Check if disc is in tray
-        if getTrayStatus(p) == 4:
+        if self.getTrayStatus(self.omDevice) == 4:
             self.discInTrayFlag = True
 
         # Convert rescueDirectDiscMode and autoRetry to Boolean
