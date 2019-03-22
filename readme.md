@@ -23,6 +23,20 @@
 
 ## Installation
 
+### Preparation: give non-root user permission to run readom
+
+The *readom* documentation recommends to always run *readom* as root. To allow a non-root user to run *readom*, you must give them the permissions to do so using the two simple steps below (source [here](https://www.cyberciti.biz/tips/allow-non-root-user-to-write-cds.html); note that I'm not entirely sure step 1 is even necessary):
+
+1. Set SUID-root on *wodim* (this is the package that contains *readom*):
+
+        sudo dpkg-reconfigure wodim
+
+2. Add user to *cdrom* group (replace $USER with the name of the user who will be using *omimgr*):
+
+        sudo adduser $USER cdrom
+
+The user is now added to the 'cdrom' system group. Now log out, and then log in again for the changes to take effect.
+
 ### Global install
 
 For a global (all-users) installation run the following command:
