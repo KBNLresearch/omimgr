@@ -16,13 +16,13 @@ import logging
 import queue
 import uuid
 import json
-import _thread as thread
+from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog as tkFileDialog
 from tkinter import scrolledtext as ScrolledText
 from tkinter import messagebox as tkMessageBox
 from tkinter import ttk
-from pathlib import Path
+from tkfilebrowser import askopendirname
 from .om import Disc
 from . import config
 
@@ -184,10 +184,17 @@ class omimgrGUI(tk.Frame):
                 self.t1.start()
 
 
-    def selectOutputDirectory(self, event=None):
+    def selectOutputDirectoryOld(self, event=None):
         """Select output directory"""
         dirInit = self.disc.dirOut
         self.disc.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
+        self.outDirLabel['text'] = self.disc.dirOut
+
+
+    def selectOutputDirectory(self, event=None):
+        """Select output directory"""
+        dirInit = self.disc.dirOut
+        self.disc.dirOut = askopendirname(initialdir=dirInit)
         self.outDirLabel['text'] = self.disc.dirOut
 
 
