@@ -26,6 +26,7 @@ def find_version(*file_paths):
 INSTALL_REQUIRES = [
     'setuptools',
     'pytz',
+    'tkfilebrowser',
     'isolyzer'
 ]
 
