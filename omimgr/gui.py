@@ -662,7 +662,7 @@ def main():
                     retryFromRescueFlag = False
                 else:
                     # Reset dirOut to parent dir of current value
-                    dirOutNew = Path(myGUI.disc.dirOut).parent
+                    dirOutNew = str(Path(myGUI.disc.dirOut).parent)
                     # Reset the GUI
                     myGUI.reset_gui(dirOutNew)
 
