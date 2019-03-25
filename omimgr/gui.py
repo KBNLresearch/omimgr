@@ -22,6 +22,7 @@ from tkinter import filedialog as tkFileDialog
 from tkinter import scrolledtext as ScrolledText
 from tkinter import messagebox as tkMessageBox
 from tkinter import ttk
+from pathlib import Path
 from .om import Disc
 from . import config
 
@@ -454,17 +455,14 @@ class omimgrGUI(tk.Frame):
                    "Run '(sudo) omimgr-config' to fix this.")
             errorExit(msg)
 
-    def reset_gui(self):
+    def reset_gui(self, dirOut):
         """Reset the GUI"""
         # Create new disc instance
         self.disc = Disc()
         # Read configuration
         self.disc.getConfiguration()
-        # Set dirOut, depending on whether value from config is a directory
-        if os.path.isdir(self.disc.defaultDir):
-            self.disc.dirOut = self.disc.defaultDir
-        else:
-            self.disc.dirOut = os.path.expanduser("~")
+        # Set dirOut
+        self.disc.dirOut = dirOut
         # Set readMethod to readom
         self.v.set(1)
         # Logging stuff
@@ -656,8 +654,10 @@ def main():
                     myGUI.quit_button.config(state='normal')
                     retryFromRescueFlag = False
                 else:
+                    # Reset dirOut to parent dir of current value
+                    dirOutNew = Path(myGUI.disc.dirOut).parent
                     # Reset the GUI
-                    myGUI.reset_gui()
+                    myGUI.reset_gui(dirOutNew)
 
         except Exception as e:
             # Unexpected error
