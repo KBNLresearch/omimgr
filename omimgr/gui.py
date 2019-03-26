@@ -661,7 +661,8 @@ def main():
                     myGUI.quit_button.config(state='normal')
                     retryFromRescueFlag = False
                 else:
-                    # Reset dirOut to parent dir of current value
+                    # Reset dirOut to parent dir of current value (returns root 
+                    # dir if dirOut is root)
                     dirOutNew = str(Path(myGUI.disc.dirOut).parent)
                     # Reset the GUI
                     myGUI.reset_gui(dirOutNew)
