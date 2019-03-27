@@ -95,6 +95,9 @@ class Disc:
                 self.extension = configDict['extension']
                 self.rescueDirectDiscMode = configDict['rescueDirectDiscMode']
                 self.autoRetry = configDict['autoRetry']
+                # Convert rescueDirectDiscMode and autoRetry to Boolean
+                self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode == "True")
+                self.autoRetry = bool(self.autoRetry == "True")
                 self.retriesDefault = configDict['retries']
                 self.timeZone = configDict['timeZone']
                 self.defaultDir = configDict['defaultDir']
@@ -146,10 +149,6 @@ class Disc:
         # Check if disc is in tray
         if self.getTrayStatus(self.omDevice) == 4:
             self.discInTrayFlag = True
-
-        # Convert rescueDirectDiscMode and autoRetry to Boolean
-        self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode == "True")
-        self.autoRetry = bool(self.autoRetry == "True")
 
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
