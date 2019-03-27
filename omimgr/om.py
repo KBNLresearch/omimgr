@@ -148,8 +148,8 @@ class Disc:
             self.discInTrayFlag = True
 
         # Convert rescueDirectDiscMode and autoRetry to Boolean
-        self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode)
-        self.autoRetry = bool(self.autoRetry)
+        self.rescueDirectDiscMode = bool(self.rescueDirectDiscMode == "True")
+        self.autoRetry = bool(self.autoRetry == "True")
 
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
