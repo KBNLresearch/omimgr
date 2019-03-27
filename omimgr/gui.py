@@ -514,8 +514,8 @@ class omimgrGUI(tk.Frame):
         self.description_entry.insert(tk.END, self.disc.description)
         self.notes_entry.delete(1.0, tk.END)
         self.notes_entry.insert(tk.END, self.disc.notes)
-        self.rescueDirectDiscMode_entry.variable = self.disc.rescueDirectDiscMode
-        self.autoRetry_entry.variable = self.disc.autoRetry
+        self.rescueDirectDiscMode.set(self.disc.rescueDirectDiscMode)
+        self.autoRetry.set(self.disc.autoRetry)
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
