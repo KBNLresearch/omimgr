@@ -659,6 +659,7 @@ def main():
                     myGUI.autoRetry_entry.config(state='normal')
                     myGUI.start_button.config(state='normal')
                     myGUI.quit_button.config(state='normal')
+                    myGUI.interrupt_button.config(state='disabled')
                     retryFromRescueFlag = False
                 else:
                     # Reset dirOut to parent dir of current value (returns root 
