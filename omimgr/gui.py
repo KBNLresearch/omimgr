@@ -290,6 +290,23 @@ class omimgrGUI(tk.Frame):
         self.grid_columnconfigure(2, weight=1, pad=0)
         self.grid_columnconfigure(3, weight=1, pad=0)
 
+        # Set GUI geometry
+        windowWidth = 720
+        windowHeight = 760
+
+        # get the screen dimension
+        screenWidth = self.root.winfo_screenwidth()
+        screenHeight = self.root.winfo_screenheight()
+
+        # find the center point
+        centerX = int(screenWidth/2 - windowWidth / 2)
+        centerY = int(screenHeight/2 - windowHeight / 2)
+
+        # set the position of the window to the center of the screen
+        self.root.geometry(f'{windowWidth}x{windowHeight}+{centerX}+{centerY}')
+        # Disable resize
+        self.root.resizable(False, False)
+
         # Entry elements
         ttk.Separator(self, orient='horizontal').grid(column=0, row=0, columnspan=4, sticky='ew')
         # Output Directory
@@ -311,15 +328,6 @@ class omimgrGUI(tk.Frame):
         self.omDevice_entry['background'] = 'white'
         self.omDevice_entry.insert(tk.END, self.disc.omDevice)
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
-
-        # Interrupt button (disabled on startup)
-        self.interrupt_button = tk.Button(self,
-                                          text='Interrupt',
-                                          underline=0,
-                                          command=self.interruptImaging,
-                                          width=8)
-        self.interrupt_button.grid(column=2, row=5, sticky='e')
-        self.interrupt_button.config(state='disabled')
 
         # Read command (readom or ddrescue)
         self.v = tk.IntVar()
@@ -419,13 +427,14 @@ class omimgrGUI(tk.Frame):
 
         # Notes entry field
         tk.Label(self, text='Notes').grid(column=0, row=17, sticky='w')
-        self.notes_entry = tk.Text(self, height=6, width=45)
+        self.notes_entry = tk.Text(self, height=3, width=45)
         self.notes_entry['background'] = 'white'
         self.notes_entry.insert(tk.END, self.disc.notes)
         self.notes_entry.grid(column=1, row=17, sticky='w', columnspan=1)
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=18, columnspan=4, sticky='ew')
 
+        # Start button
         self.start_button = tk.Button(self,
                                       text='Start',
                                       width=10,
@@ -433,6 +442,16 @@ class omimgrGUI(tk.Frame):
                                       command=self.on_submit)
         self.start_button.grid(column=1, row=19, sticky='w')
 
+        # Interrupt button (disabled on startup)
+        self.interrupt_button = tk.Button(self,
+                                          text='Interrupt',
+                                          underline=0,
+                                          command=self.interruptImaging,
+                                          width=8)
+        self.interrupt_button.grid(column=1, row=19, sticky='')
+        self.interrupt_button.config(state='disabled')
+
+        # Exit button
         self.quit_button = tk.Button(self,
                                      text='Exit',
                                      width=10,
@@ -443,7 +462,7 @@ class omimgrGUI(tk.Frame):
         ttk.Separator(self, orient='horizontal').grid(column=0, row=20, columnspan=4, sticky='ew')
 
         # Add ScrolledText widget to display logging info
-        self.st = ScrolledText.ScrolledText(self, state='disabled', height=15)
+        self.st = ScrolledText.ScrolledText(self, state='disabled', height=8)
         self.st.configure(font='TkFixedFont')
         self.st['background'] = 'white'
         self.st.grid(column=0, row=21, sticky='ew', columnspan=4)
