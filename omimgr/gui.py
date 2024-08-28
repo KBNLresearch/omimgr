@@ -24,6 +24,7 @@ from tkinter import messagebox as tkMessageBox
 from tkinter import ttk
 from tkfilebrowser import askopendirname
 from .om import Disc
+from . import shared
 from . import config
 
 
@@ -66,7 +67,7 @@ class omimgrGUI(tk.Frame):
         inputValidateFlag = True
 
         # Fetch entered values (strip any leading / trailing whitespace characters)
-        self.disc.omDevice = self.omDevice_entry.get().strip()
+        self.disc.omDevice =  self.bdVar.get().split(' (')[0].strip()
 
         # Lookup readMethod for readMethodCode value
         readMethodCode = self.v.get()
@@ -165,6 +166,7 @@ class omimgrGUI(tk.Frame):
                 # Disable data entry widgets
                 self.outDirButton_entry.config(state='disabled')
                 self.omDevice_entry.config(state='disabled')
+                self.refresh_button.config(state='disabled')
                 self.retries_entry.config(state='disabled')
                 self.decreaseRetriesButton.config(state='disabled')
                 self.increaseRetriesButton.config(state='disabled')
@@ -245,6 +247,15 @@ class omimgrGUI(tk.Frame):
                     msg = ("Parsing of metadata file resulted in an error")
                     tkMessageBox.showerror("ERROR", msg)
 
+    def refreshDevices(self, event=None):
+        """Refresh list of available devices"""
+        devices = shared.getOpticalDevices()
+        DEVICES = []
+        for device in devices:
+            # Display both device with its corresponding size
+            DEVICES.append(device[0] + ' (' + device[1] + ')')
+        
+        self.omDevice_entry.set_menu(*DEVICES)
 
     def interruptImaging(self, event=None):
         """Interrupt imaging process"""
@@ -323,11 +334,29 @@ class omimgrGUI(tk.Frame):
         ttk.Separator(self, orient='horizontal').grid(column=0, row=4, columnspan=4, sticky='ew')
 
         # Device
+        devices = shared.getOpticalDevices()
+        DEVICES = []
+        for device in devices:
+            # Display both device with its corresponding size
+            DEVICES.append(device[0] + ' (' + device[1] + ')')
+        self.bdVar = tk.StringVar()
+        try:
+            self.bdVar.set(DEVICES[0])
+        except IndexError:
+            # We end up here if omimgr is launched with insufficient rights
+            # or user is not part of cdrom group
+            self.bdVar.set("N/A")
+        self.omDevice_entry = ttk.OptionMenu(self, self.bdVar, *DEVICES)
         tk.Label(self, text='Optical device').grid(column=0, row=5, sticky='w')
-        self.omDevice_entry = tk.Entry(self, width=20)
-        self.omDevice_entry['background'] = 'white'
-        self.omDevice_entry.insert(tk.END, self.disc.omDevice)
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
+
+        # Refresh device list button
+        self.refresh_button = tk.Button(self,
+                                        text='Refresh',
+                                        underline=0,
+                                        command=self.refreshDevices,
+                                        width=4)
+        self.refresh_button.grid(column=1, row=5, sticky='e')
 
         # Read command (readom or ddrescue)
         self.v = tk.IntVar()
@@ -474,6 +503,7 @@ class omimgrGUI(tk.Frame):
         self.root.bind_all('<Control-Key-e>', self.on_quit)
         self.root.bind_all('<Control-Key-u>', self.insertUUID)
         self.root.bind_all('<Control-Key-l>', self.importMetadata)
+        self.root.bind_all('<Control-Key-r>', self.refreshDevices)
           
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
@@ -504,6 +534,7 @@ class omimgrGUI(tk.Frame):
         # Enable entry widgets
         self.outDirButton_entry.config(state='normal')
         self.omDevice_entry.config(state='normal')
+        self.refresh_button.config(state='normal')
         self.retries_entry.config(state='normal')
         self.decreaseRetriesButton.config(state='normal')
         self.increaseRetriesButton.config(state='normal')
@@ -522,8 +553,7 @@ class omimgrGUI(tk.Frame):
         self.quit_button.config(state='normal')
         # Reset all entry widgets
         self.outDirLabel['text'] = self.disc.dirOut
-        self.omDevice_entry.delete(0, tk.END)
-        self.omDevice_entry.insert(tk.END, self.disc.omDevice)
+        self.refreshDevices()
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, self.disc.retriesDefault)
         self.prefix_entry.delete(0, tk.END)
@@ -682,6 +712,7 @@ def main():
                     myGUI.start_button.config(state='normal')
                     myGUI.quit_button.config(state='normal')
                     myGUI.interrupt_button.config(state='disabled')
+                    myGUI.refresh_button.config(state='normal')
                     retryFromRescueFlag = False
                 else:
                     # Reset dirOut to parent dir of current value (returns root 
