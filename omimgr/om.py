@@ -90,7 +90,6 @@ class Disc:
                 self.logFileName = configDict['logFileName']
                 self.checksumFileName = configDict['checksumFileName']
                 self.metadataFileName = configDict['metadataFileName']
-                self.omDevice = configDict['omDevice']
                 self.prefix = configDict['prefix']
                 self.extension = configDict['extension']
                 self.rescueDirectDiscMode = configDict['rescueDirectDiscMode']
