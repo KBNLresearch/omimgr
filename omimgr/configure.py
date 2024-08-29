@@ -53,7 +53,6 @@ def writeConfigFile(configRootDir, removeFlag):
     configSettings['checksumFileName'] = 'checksums.sha512'
     configSettings['logFileName'] = 'omimgr.log'
     configSettings['metadataFileName'] = 'metadata.json'
-    configSettings['omDevice'] = '/dev/sr0'
     configSettings['prefix'] = 'disc'
     configSettings['extension'] = 'iso'
     configSettings['rescueDirectDiscMode'] = 'False'

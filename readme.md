@@ -81,7 +81,7 @@ Use the *Select Output Directory* button to navigate to an (empty) directory whe
 
 |Option|Description|
 |:-|:-|
-|**Optical Device**|The optical devices that is used (default: `/dev/nst0`).|
+|**Optical Device**|The optical device that is used for reading. Press the *Refresh* button to update the dropdown list.|
 |**Read method**|The method (application) that is used to read the disc (default: `readom`).|
 |**Retries**|Maximum number of retries (default: `4`).|
 |**Direct disc mode**|Check this option to read a disc in direct disc mode (setting only has effect with *ddrescue*) (disabled by default).|
@@ -189,7 +189,6 @@ Most of these fields are self-explanatory, but the following need some further e
         "extension": "iso",
         "logFileName": "omimgr.log",
         "metadataFileName": "metadata.json",
-        "omDevice": "/dev/sr0",
         "prefix": "disc",
         "readCommand": "readom",
         "rescueDirectDiscMode": "False",
