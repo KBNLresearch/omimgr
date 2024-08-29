@@ -105,7 +105,7 @@ If the imaging finished without any errors, the output directory now contains th
 
 ![](./img/omimgr-files.png)
 
-Here, **handbook.iso** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **omimgr.log** is the log file.
+Here, **winkelnet.iso** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **omimgr.log** is the log file.
 
 If *readom*'s attempt to read the disc resulted in any errors, *omimgr* prompts the user to try again with *ddrescue*:
 
