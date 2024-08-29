@@ -11,15 +11,21 @@
 
 - **Tkinter**. If *tkinter* is not installed already, you need to use the OS's package manager to install (there is no PyInstaller package for *tkinter*). If you're using *apt* this should work:
 
-        sudo apt-get install python3-tk
+    ```
+    sudo apt-get install python3-tk
+    ```
 
 - **readom**, which is part of the *wodim* package. Use the following command to install it:
 
-        sudo apt install wodim
+    ```
+    sudo apt install wodim
+    ```
 
 - **ddrescue**, which can be installed using:
 
-        sudo apt install gddrescue
+    ```
+    sudo apt install gddrescue
+    ```
 
 ## Installation
 
@@ -29,11 +35,15 @@ The *readom* documentation recommends to always run *readom* as root. To allow a
 
 1. Set SUID-root on *wodim* (this is the package that contains *readom*):
 
-        sudo dpkg-reconfigure wodim
+    ```
+    sudo dpkg-reconfigure wodim
+    ```
 
 2. Add user to *cdrom* group (replace $USER with the name of the user who will be using *omimgr*):
 
-        sudo adduser $USER cdrom
+    ```
+    sudo adduser $USER cdrom
+    ```
 
 The user is now added to the 'cdrom' system group. Now log out, and then log in again for the changes to take effect.
 
@@ -41,33 +51,45 @@ The user is now added to the 'cdrom' system group. Now log out, and then log in 
 
 For a global (all-users) installation run the following command:
 
-    sudo pip3 install omimgr
+```
+sudo pip3 install omimgr
+```
 
 Then run:
 
-    sudo omimgr-config
+```
+sudo omimgr-config
+```
 
 If all goes well this should result in the following output:
 
-    INFO: writing configuration file /etc/omimgr/omimgr.json
-    INFO: creating desktop file /usr/share/applications/omimgr.desktop
-    INFO: omimgr configuration completed successfully!
+```
+INFO: writing configuration file /etc/omimgr/omimgr.json
+INFO: creating desktop file /usr/share/applications/omimgr.desktop
+INFO: omimgr configuration completed successfully!
+```
 
 ### User install
 
 Use the following command for a single-user installation:
 
-    pip3 install --user omimgr
+```
+pip3 install --user omimgr
+```
 
 Then run:
 
-    ~/.local/bin/omimgr-config
+```
+~/.local/bin/omimgr-config
+```
 
 Result:
 
-    INFO: writing configuration file /home/johan/.config/omimgr/omimgr.json
-    INFO: creating desktop file /home/johan/.local/share/applications/omimgr.desktop
-    INFO: omimgr configuration completed successfully!
+```
+INFO: writing configuration file /home/johan/.config/omimgr/omimgr.json
+INFO: creating desktop file /home/johan/.local/share/applications/omimgr.desktop
+INFO: omimgr configuration completed successfully!
+```
 
 *Omimgr* is now ready to roll!
 
@@ -145,31 +167,33 @@ Follow these steps to resume a *ddrescue* run that was previously interrupted:
 
 The file *metadata.json* contains metadata in JSON format. Below is an example:
 
-    {
-        "acquisitionEnd": "2019-03-20T15:22:37.449475+01:00",
-        "acquisitionStart": "2019-03-20T15:22:28.074038+01:00",
-        "autoRetry": true,
-        "checksumType": "SHA-512",
-        "checksums": {
-            "handbook.iso": "20eb93d8d0fa7fe24bd4debba6a0f1556c09a1b1c3a753bbf0d39445e72c3569e69e813c845629e1165ce57aa6d19ccb2b1a9df1a88fea9e7e464f6893fc7d02"
-        },
-        "description": "Preservation Management of Digital Materials",
-        "extension": "iso",
-        "identifier": "4148d87e-4b1b-11e9-a843-dc4a3e5f53bf",
-        "imageTruncated": false,
-        "interruptedFlag": false,
-        "isolyzerSuccess": true,
-        "maxRetries": "4",
-        "notes": "System requirements:\n\n- IBM compatible PC or Apple Macintosh\n- MS Windows 95 or OS 7 or above",
-        "omDevice": "/dev/sr0",
-        "omimgrVersion": "0.1.0b2",
-        "prefix": "handbook",
-        "readCommandLine": "readom retries=4 dev=/dev/sr0 f=/home/johan/test/handbook.iso",
-        "readMethod": "readom",
-        "readMethodVersion": "readom 1.1.11 (Linux)",
-        "rescueDirectDiscMode": false,
-        "successFlag": true
-    }
+```json
+{
+    "acquisitionEnd": "2019-03-20T15:22:37.449475+01:00",
+    "acquisitionStart": "2019-03-20T15:22:28.074038+01:00",
+    "autoRetry": true,
+    "checksumType": "SHA-512",
+    "checksums": {
+        "handbook.iso": "20eb93d8d0fa7fe24bd4debba6a0f1556c09a1b1c3a753bbf0d39445e72c3569e69e813c845629e1165ce57aa6d19ccb2b1a9df1a88fea9e7e464f6893fc7d02"
+    },
+    "description": "Preservation Management of Digital Materials",
+    "extension": "iso",
+    "identifier": "4148d87e-4b1b-11e9-a843-dc4a3e5f53bf",
+    "imageTruncated": false,
+    "interruptedFlag": false,
+    "isolyzerSuccess": true,
+    "maxRetries": "4",
+    "notes": "System requirements:\n\n- IBM compatible PC or Apple Macintosh\n- MS Windows 95 or OS 7 or above",
+    "omDevice": "/dev/sr0",
+    "omimgrVersion": "0.1.0b2",
+    "prefix": "handbook",
+    "readCommandLine": "readom retries=4 dev=/dev/sr0 f=/home/johan/test/handbook.iso",
+    "readMethod": "readom",
+    "readMethodVersion": "readom 1.1.11 (Linux)",
+    "rescueDirectDiscMode": false,
+    "successFlag": true
+}
+```
 
 Most of these fields are self-explanatory, but the following need some further explanation:
 
@@ -182,19 +206,21 @@ Most of these fields are self-explanatory, but the following need some further e
 
 *Omimgr*'s internal settings (default values for output file names, the optical device, etc.) are defined in a configuration file in Json format. For a global installation it is located at */etc/omimgr/omimgr.json*; for a user install it can be found at *~/.config/omimgr/omimgr.json*. The default configuration is show below:
 
-    {
-        "autoRetry": "False",
-        "checksumFileName": "checksums.sha512",
-        "defaultDir": "",
-        "extension": "iso",
-        "logFileName": "omimgr.log",
-        "metadataFileName": "metadata.json",
-        "prefix": "disc",
-        "readCommand": "readom",
-        "rescueDirectDiscMode": "False",
-        "retries": "4",
-        "timeZone": "Europe/Amsterdam"
-    }
+```json
+{
+    "autoRetry": "False",
+    "checksumFileName": "checksums.sha512",
+    "defaultDir": "",
+    "extension": "iso",
+    "logFileName": "omimgr.log",
+    "metadataFileName": "metadata.json",
+    "prefix": "disc",
+    "readCommand": "readom",
+    "rescueDirectDiscMode": "False",
+    "retries": "4",
+    "timeZone": "Europe/Amsterdam"
+}
+```
 
 You can change *omimgr*'s default settings by editing this file. Most of the above settings are self-explanatory, with the exception of the following:
 
@@ -210,26 +236,36 @@ If you accidentally messed up the configuration file, you can always restore the
 
 To remove *omimgr*, first run the *omimgr-config* with the `--remove` flag to remove the configuration file and the start menu and desktop files. For a global install, run:
 
-    sudo omimgr-config --remove
+```
+sudo omimgr-config --remove
+```
 
 For a user install, run:
 
-    ~/.local/bin/omimgr-config --remove
+```
+~/.local/bin/omimgr-config --remove
+```
 
 The resulting output (shown below for a user install):
 
-    INFO: removing configuration file /home/johan/.config/omimgr/omimgr.json
-    INFO: removing configuration directory /home/johan/.config/omimgr
-    INFO: removing desktop file /home/johan/.local/share/applications/omimgr.desktop
-    INFO: omimgr configuration completed successfully!
+```
+INFO: removing configuration file /home/johan/.config/omimgr/omimgr.json
+INFO: removing configuration directory /home/johan/.config/omimgr
+INFO: removing desktop file /home/johan/.local/share/applications/omimgr.desktop
+INFO: omimgr configuration completed successfully!
+```
 
 Then remove the Python package with following command (global install):
 
-    sudo pip3 uninstall omimgr
+```
+sudo pip3 uninstall omimgr
+```
 
 For a user install use this:
 
-    pip3 uninstall omimgr
+```
+pip3 uninstall omimgr
+```
 
 ## Contributors
 
